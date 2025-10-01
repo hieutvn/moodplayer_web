@@ -1,0 +1,89 @@
+@font-face {
+
+    font-family: 'Montserrat Bold';
+    src: url('../fonts/woff2/Montserrat-Bold.woff2') format('woff2'),
+        url('../fonts/woff/Montserrat-Bold.woff') format('woff'),
+        url('../fonts/ttf/Montserrat-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+    font-style: normal;
+}
+
+@font-face {
+
+    font-family: 'Montserrat SemiBold';
+    src: url('../fonts/woff2/Montserrat-SemiBold.woff2') format('woff2'),
+        url('../fonts/woff/Montserrat-SemiBold.woff') format('woff'),
+        url('../fonts/ttf/Montserrat-SemiBold.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+    font-style: normal;
+}
+
+@font-face {
+
+    font-family: 'Montserrat Medium';
+    src: url('../fonts/woff2/Montserrat-Medium.woff2') format('woff2'),
+        url('../fonts/woff/Montserrat-Medium.woff') format('woff'),
+        url('../fonts/ttf/Montserrat-Medium.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+    font-style: normal;
+}
+
+@font-face {
+
+    font-family: 'Montserrat Regular';
+    src: url('../fonts/woff2/Montserrat-Regular.woff2') format('woff2'),
+        url('../fonts/woff/Montserrat-Regular.woff') format('woff'),
+        url('../fonts/ttf/Montserrat-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+    font-style: normal;
+}
+
+@font-face {
+
+    font-family: 'Montserrat Light';
+    src: url('../fonts/woff2/Montserrat-Light.woff2') format('woff2'),
+        url('../fonts/woff/Montserrat-Light.woff') format('woff'),
+        url('../fonts/ttf/Montserrat-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+    font-style: normal;
+}
+
+
+:root {
+
+    --mp-darkgrey: #191414;
+    --mp-midgrey: #2d2b2b;
+    --mp-lightgrey: #535353;
+    --mp-lightgreen: #1ED760;
+    --mp-darkgreen: #1DB954;
+    --mp-black: #000;
+    --mp-white: #fff;
+    --text-fontsize: 0.65rem;
+    --text-fontsize_02: 0.8rem;
+    --subheader-fontsize: 1rem;
+    --subheader-fontsize_02: 1.2rem;
+    --header-fontsize: 1.5rem;
+    --header-font: "Montserrat Bold";
+    --text-font: "Montserrat Light";
+    --subheader-font: "Montserrat Medium";
+}
+
+html {
+
+    overflow: hidden;
+}
+
+body {
+
+    padding: 0;
+    margin: 0;
+    background: var(--mp-darkgrey);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

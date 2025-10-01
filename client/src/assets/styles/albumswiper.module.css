@@ -1,0 +1,45 @@
+.album_swiper {
+
+    width: 100%;
+    height: 100%;
+    background-color: red;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    /*grid-template-rows: auto auto 2fr;*/
+
+}
+
+.album_covers {
+
+    width: 100%;
+    height: 100%;
+    background-color: blue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-grow: 1;
+    z-index: 1;
+    overflow: hidden;
+
+
+}
+
+.album {
+
+    width: 35rem;
+    height: 35rem;
+    background-color: grey;
+    border: 1px solid black;
+    justify-self: center;
+    align-items: center;
+}
+
+.album_titles {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.active {}

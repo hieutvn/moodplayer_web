@@ -1,0 +1,30 @@
+.settings {
+
+    width: 15rem;
+    height: 2.25rem;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.profile {
+
+    width: 2.25rem;
+    height: 2.25rem;
+    background-color: blue;
+    border-radius: 60%;
+}
+
+.added_songs {
+
+    width: 2.25rem;
+    height: 2.25rem;
+    background-color: blue;
+    border-radius: 60%;
+}
+
+.log_out {
+
+    width: 5.25rem;
+    height: 2.25rem;
+    background-color: green;
+}
