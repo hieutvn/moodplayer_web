@@ -13,10 +13,10 @@ router.use(cors(corsOptions));
 router.get("/", (req, res) => {
 
     try {
-        if (!req.session.tokens) throw new Error("No access token");
+        if (!req.session.access_token) throw new Error("No access token");
 
         res.status(200).json({
-            "access_token": JSON.stringify(req.session.tokens)
+            "access_token": req.session.access_token
         });
     }
     catch (error) {

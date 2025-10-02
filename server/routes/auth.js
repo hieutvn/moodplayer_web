@@ -117,14 +117,9 @@ router.get('/callback*', async (req, res, next) => {
 
     const { access_token, refresh_token, expires_in } = req.tokens;
     //res.cookie("AccessToken", access_token, { maxAge: 60000 })
-    console.log("id", req.session.id)
     req.session.visited = true
-    req.session.tokens = {
-        access_token,
-        refresh_token
-    }
+    req.session.access_token = access_token
 
-    console.log("append", req.session.tokens)
 
     res.redirect("http://127.0.0.1:5173/dashboard");
 });

@@ -37,8 +37,9 @@ app.use(session({
 
     secret: 'accessToken',
     resave: false,
-    saveUninitializeymaxAge: 60000,
+    saveUninitialized: false,
     cookie: { maxAge: 60000, secure: false },
+    signed: false
 },
 
 ));

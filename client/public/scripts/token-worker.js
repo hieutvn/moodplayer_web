@@ -10,14 +10,21 @@ onmessage = function (event) {
     switch (action) {
 
         case 'setToken':
-            token = payload;
+            token = payload.token;
+            tokenExpiry = payload.expiryTime;
+            this.postMessage({ action: "setToken", token, expiryTime: tokenExpiry });
             break;
 
         case 'getToken':
-            this.postMessage({ action: 'token', token });
+            if (token && tokenExpiry && (Date.now() < tokenExpiry)) this.postMessage({ action: 'token', token });
+
+            this.postMessage("Token expired.")
             break;
 
         case 'clearToken':
+
+            token = null;
+            tokenExpiry = null;
             this.postMessage({ action: 'tokenCleared' });
             break;
 

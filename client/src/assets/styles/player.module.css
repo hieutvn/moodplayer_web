@@ -115,6 +115,11 @@
   align-items: center;
 }
 
+.player_controls>button:hover {
+
+  cursor: pointer;
+}
+
 .volume {
 
   width: 11rem;
