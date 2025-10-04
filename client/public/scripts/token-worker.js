@@ -32,3 +32,28 @@ onmessage = function (event) {
             console.error("Unknown action:", action);
     }
 }
+
+
+/*
+    useEffect(() => {
+
+        tokenWorkerRef.current = new Worker('/scripts/token-worker.js', { type: "module" });
+
+        function setToken() { tokenWorkerRef.current.postMessage({ action: 'setToken', payload: token }) }
+        function getToken() {
+
+            return new Promise((resolve, reject) => {
+
+                tokenWorkerRef.current.onmessage = function (event) {
+
+                    if (event.data.action === 'token') resolve(event.data.token);
+                    else if (event.data.action === 'tokenExpired') reject("Token has expired.");
+                }
+                tokenWorkerRef.current.postMessage({ action: 'getToken' });
+            });
+        }
+        function clearToken() { tokenWorkerRef.current.postMessage({ action: "clearToken" }) }
+
+        //return () => { console.log("Worker terminated"); tokenWorkerRef.current.terminate() } --> UNMOUNT ALTERNATIVE
+    }, []);
+*/

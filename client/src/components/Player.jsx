@@ -1,5 +1,6 @@
 import styles from "../assets/styles/player.module.css";
 
+//SVG ICONS
 import PlayIcon from "../assets/icons/play_btn.svg";
 import NextSongIcon from "../assets/icons/next_song_btn.svg";
 import NextAlbumIcon from '../assets/icons/next_album_btn.svg';
@@ -7,20 +8,20 @@ import VolumeIcon from "../assets/icons/volume_btn.svg";
 import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
+import { useContext } from "react";
+
+//CONTEXTS
+import { SongContext } from "./App";
+
 export default function Player() {
+
+  const [currentSong] = useContext(SongContext);
 
   async function play() {
 
     try {
 
-      const request = await fetch("http://127.0.0.1:3000/api/auth/", {
-
-        method: "GET",
-        credentials: "include"
-      });
-
-      const data = await request.json();
-      console.log(data.access_token);
+      console.log("play clicked", currentSong);
 
 
     }
@@ -35,8 +36,12 @@ export default function Player() {
     <footer className={styles.player}>
 
       <div className={styles.track_info}>
-        <p className={styles.track_artist}>Metro Boomin, A$AP Rocky, Roisee</p>
-        <p className={styles.track_title}>Am I Dreaming</p>
+        <p className={styles.track_artist}>
+          {!currentSong ? "-" : currentSong.artists.map((artist) => artist.name).join(", ")}
+        </p>
+        <p className={styles.track_title}>
+          {!currentSong ? "-" : currentSong.name}
+        </p>
       </div>
       <div className={styles.progress_bar_wrapper}>
         <div className={styles.progress_draggable_point}>

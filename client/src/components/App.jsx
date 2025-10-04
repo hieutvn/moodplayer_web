@@ -7,9 +7,27 @@ import Settings from './Settings';
 import Player from './Player';
 import AlbumSwiper from './AlbumSwiper';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useContext, createContext, useMemo } from 'react';
+
+// CONTEXTS
+export const SongContext = createContext(null);
+export const AlbumContext = createContext(null);
+export const PlayingContext = createContext(null);
+export const TokenContext = createContext(null);
 
 export default function App() {
+
+    //TOKEN HANDLING
+    //setAccessToken(getToken());
+    const [accessTokenState, setAccessToken] = useState(null); // USEMEMO?
+    const tokenWorkerRef = useRef(null);
+    const [webplayer, setWebPlayer] = useState(null);
+
+    //SONG, ALBUM RELATED
+    const [currentSong, setCurrentSong] = useState(null);
+    const [currentAlbum, setCurrentAlbum] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [prevNextSong, setPrevNextSong] = useState({ prev: null, next: null });
 
     async function getToken() {
 
@@ -32,12 +50,6 @@ export default function App() {
         }
     }
 
-    //TOKEN HANDLING
-    //setAccessToken(getToken());
-    const [accessTokenState, setAccessToken] = useState(null);
-    const tokenWorkerRef = useRef(null);
-    const [webplayer, setWebPlayer] = useState(null);
-
     useEffect(() => {
 
         async function setToken() {
@@ -46,37 +58,16 @@ export default function App() {
             setAccessToken(token);
             //if (accessTokenState !== null) console.log("token", accessTokenState)
         }
-        setToken();
-        //return undefined;
+
+        setToken()
+            .catch(console.error);
 
     }, []);
 
-    useEffect(() => {
-
-        tokenWorkerRef.current = new Worker('/scripts/token-worker.js', { type: "module" });
-
-        function setToken() { tokenWorkerRef.current.postMessage({ action: 'setToken', payload: token }) }
-        function getToken() {
-
-            return new Promise((resolve, reject) => {
-
-                tokenWorkerRef.current.onmessage = function (event) {
-
-                    if (event.data.action === 'token') resolve(event.data.token);
-                    else if (event.data.action === 'tokenExpired') reject("Token has expired.");
-                }
-                tokenWorkerRef.current.postMessage({ action: 'getToken' });
-            });
-        }
-        function clearToken() { tokenWorkerRef.current.postMessage({ action: "clearToken" }) }
-
-        //return () => { console.log("Worker terminated"); tokenWorkerRef.current.terminate() } --> UNMOUNT ALTERNATIVE
-    }, []);
 
     useEffect(() => {
 
         if (accessTokenState === null) return;
-
 
         const script = document.createElement('script');
         script.src = "https://sdk.scdn.co/spotify-player.js";
@@ -130,9 +121,27 @@ export default function App() {
 
             });
 
-            webplayer.addListener('player_state_changed', ({ state }) => {
+            webplayer.addListener('player_state_changed', (state) => {
 
                 if (!state) return;
+
+                const data_currentSong = state.track_window.current_track;
+                const data_currentAlbum = state.track_window.current_track.album;
+                const data_isPlaying = !state.paused;
+                const prevSong = state.track_window.previous_tracks[0].id;
+                const nextSong = state.track_window.next_tracks[0].id;
+
+                if (prevNextSong.prev !== prevSong || prevNextSong.next !== nextSong) { // CHANGES WHEN USER SKIPS TRACK
+
+                    setCurrentSong(data_currentSong);
+                    setCurrentAlbum(data_currentAlbum);
+                    setIsPlaying(data_isPlaying);
+                    prevNextSong.prev = prevSong;
+                    prevNextSong.next = nextSong;
+
+                    console.log("current prev", prevNextSong.prev)
+                    console.log("current next", prevNextSong.next)
+                }
 
             });
 
@@ -144,49 +153,74 @@ export default function App() {
         }
     }, [accessTokenState]);
 
+    useEffect(() => {
+
+        if (!webplayer) return;
+
+        async function test() {
+            const state = await webplayer.getCurrentState();
+
+            if (!state) {
+                console.error('User is not playing music through the Web Playback SDK');
+                return;
+            }
+            console.log("GET CURR STATE", state)
+
+            const previous_track = state.track_window.previous_tracks[0];
+            const current_track = state.track_window.current_track;
+            const next_track = state.track_window.next_tracks[0];
+
+        }
+
+        test()
+
+    }, [currentAlbum])
 
 
-    if (webplayer) {
+    if (!webplayer) { return (<div>Loading Web Player...</div>) }
+    else if (webplayer && accessTokenState) {
         return (
 
-            <div className={styles.app}>
 
-                <div className={styles.navbar_wrapper}>
-                    <nav className={styles.navbar}>
-                        <div className={styles.logo}>moodply.</div>
-                        <Search />
-                        <Settings />
+            <TokenContext.Provider value={[accessTokenState, setAccessToken]}>
+                <div className={styles.app}>
 
-                    </nav>
-                </div>
+                    <div className={styles.navbar_wrapper}>
+                        <nav className={styles.navbar}>
+                            <div className={styles.logo}>moodply.</div>
+                            <Search />
+                            <Settings />
 
-
-                <main className={styles.main}>
-                    <div className={styles.main_wrapper}>
-                        <div className={styles.main_left}>
-
-                            <div className={styles.album_swiper}>
-                                <AlbumSwiper />
-                            </div>
-
-                            <div className={styles.player}>
-                                <Player />
-                            </div>
-                        </div>
-
-                        <div className={styles.main_right}>
-                            <AlbumList />
-                            <button onClick={() => { webplayer.togglePlay(() => { console.log("current playing") }) }}>play</button>
-
-                        </div>
+                        </nav>
                     </div>
-                </main>
-            </div>
-        )
-    }
-    else if (!webplayer) {
-        return (
-            <div>Loading Web Player...</div>
+
+                    <main className={styles.main}>
+                        <div className={styles.main_wrapper}>
+                            <div className={styles.main_left}>
+
+                                <div className={styles.album_swiper}>
+                                    <AlbumSwiper />
+                                </div>
+
+                                <div className={styles.player}>
+                                    <SongContext.Provider value={[currentSong]}>
+                                        <Player />
+                                    </SongContext.Provider>
+                                </div>
+                            </div>
+
+                            <div className={styles.main_right}>
+                                <AlbumContext.Provider value={[currentAlbum]}>
+                                    <AlbumList />
+                                </AlbumContext.Provider>
+                                <button onClick={() => { webplayer.togglePlay() }}>play</button>
+                            </div>
+
+                        </div>
+                    </main>
+
+                </div>
+            </TokenContext.Provider>
         )
     }
 }
