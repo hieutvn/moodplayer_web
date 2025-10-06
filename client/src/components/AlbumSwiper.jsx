@@ -31,15 +31,12 @@ export default function AlbumSwiper() {
             <div className={styles.album_covers}>
                 <div className={styles.album}></div>
 
-
-
-
             </div>
 
 
             <div className={styles.album_titles_wrapper}>
                 <div className={styles.album_titles}>
-                    <p className={styles.title}>Title</p>
+                    <p className={styles.title}>{sessionStorage.getItem("The Off-Season")}</p>
                 </div>
             </div>
         </div >

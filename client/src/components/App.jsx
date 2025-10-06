@@ -125,13 +125,15 @@ export default function App() {
 
                 if (!state) return;
 
+                console.log(state)
                 const data_currentSong = state.track_window.current_track;
                 const data_currentAlbum = state.track_window.current_track.album;
                 const data_isPlaying = !state.paused;
-                const prevSong = state.track_window.previous_tracks[0].id;
-                const nextSong = state.track_window.next_tracks[0].id;
 
-                if (prevNextSong.prev !== prevSong || prevNextSong.next !== nextSong) { // CHANGES WHEN USER SKIPS TRACK
+                const prevSong = state.track_window.previous_tracks[0] ? state.track_window.previous_tracks[0].id : null; // --> WHEN NEW PLAYLIST IS LOADED, NO PREV OR NEXT TRACK FOUND = ERROR
+                const nextSong = state.track_window.next_tracks[0] ? state.track_window.next_tracks[0].id : null;
+
+                if (prevSong && nextSong && prevNextSong.prev !== prevSong || prevNextSong.next !== nextSong) { // CHANGES WHEN USER SKIPS TRACK
 
                     setCurrentSong(data_currentSong);
                     setCurrentAlbum(data_currentAlbum);
