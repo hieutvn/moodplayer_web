@@ -1,12 +1,13 @@
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 import styles from '../assets/styles/albumlist.module.css';
 
-import { AlbumContext, TokenContext } from './App';
+import { AlbumContext, TokenContext, SongContext } from './App';
 
 export default function AlbumList() {
 
-    const [currentAlbum] = useContext(AlbumContext);
-    const [accessTokenState] = useContext(TokenContext);
+    const {currentAlbum} = useContext(AlbumContext);
+    const {accessTokenState} = useContext(TokenContext);
+    const {currentSong} = useContext(SongContext);
 
     const [songs, setSongs] = useState([]);
     const [albumList, setAlbumList] = useState([]);
@@ -22,7 +23,6 @@ export default function AlbumList() {
         const minutes = Math.floor((seconds % 3600) / 60);
         const hours = Math.floor(totalSec / 3600);
 
-
         if (hours > 0)
             return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
         else if (hours <= 0)
@@ -31,9 +31,6 @@ export default function AlbumList() {
     useEffect(() => {
 
         if (!currentAlbum) return;
-
-        console.log(currentAlbum)
-
         const albumID = currentAlbum.uri.slice(14); // EXCLUDES "spotify:album:"
 
         const requestAlbum = async () => {
@@ -55,8 +52,7 @@ export default function AlbumList() {
                 if (artistID !== currentArtistID) setCurrentArtistID(artistID)
                 ///
 
-
-                console.log("ALBUM", album)
+                //console.log("ALBUM", album)
                 sessionStorage.setItem(album.name, JSON.stringify({
                     album_name: album.name,
                     album_id: albumID,
@@ -67,13 +63,15 @@ export default function AlbumList() {
 
                 album.tracks.items.map((item) => {
 
-                    setAlbumList(prev => [...prev, {
+                // CHANGE IN ORDER TO AVOID DUPLICATES!!
+                setAlbumList(prev => [...prev, {
                         artist: item.artists.map((artist) => artist.name).join(", "),
                         name: item.name,
                         //duration: (((item.duration_ms / 1000) / 60).toFixed(2))
                         duration: formatDuration(item.duration_ms)
                     }]);
                 })
+                
             }
             catch (error) { console.error(error) }
             if (!accessTokenState) { throw new Error('No Token loaded.') }
@@ -118,8 +116,8 @@ export default function AlbumList() {
 
     /// ---> TBD. SESSIONSTORAGE UM KÜNSTLER KURZZEITIG ZU SPEICHERN UND ABZURUFEN Z.B. ID
 
-
-
+    // <li key={index} className={`styles${ (item.name === currentSong.name) ? song_container.active : song_container}`}> 
+    
     if (!accessTokenState) { return <h1>Loading..</h1> }
     else if (albumList) {
         return (
@@ -136,18 +134,24 @@ export default function AlbumList() {
                 </div >
                 <ul className={styles.list_container}>
                     <span className={styles.list_upper}><p>Title</p> <p>Duration</p></span>
-                    {
-                        albumList.map((item, index) => (
-                            <li key={index} className={styles.song_container}>
-                                <div className={styles.song_info}>
-                                    <div className={styles.song_title}>{item.name}</div>
-                                    <div className={styles.song_artist}>{item.artist}</div>
-                                </div>
+                        <div className={styles.list_container_wrapper}>
+                            {
+                                albumList.map((item, index) => {
+                                    const isActive = currentSong && item.name === currentSong.name;
 
-                                <div className={styles.song_duration}>{item.duration}</div>
-                            </li>
-                        ))
-                    }
+                                    return (
+                                        <li key={index} className={isActive ? `${styles.song_container} ${styles.active}` : styles.song_container}>
+                                            <div className={styles.song_info}>
+                                                <div className={styles.song_title}>{item.name}</div>
+                                                <div className={styles.song_artist}>{item.artist}</div>
+                                            </div>
+
+                                            <div className={styles.song_duration}>{item.duration}</div>
+                                        </li>
+                                    )
+                                })
+                            }
+                        </div>
                 </ul>
             </div >
         )

@@ -14,6 +14,7 @@ export const SongContext = createContext(null);
 export const AlbumContext = createContext(null);
 export const PlayingContext = createContext(null);
 export const TokenContext = createContext(null);
+export const WebPlayerContext = createContext(null);
 
 export default function App() {
 
@@ -104,6 +105,7 @@ export default function App() {
 
                 console.log("Webplayer initialized. ID: ", device_id);
                 setWebPlayer(webplayer);
+                console.log("webplayer", webplayer)
 
                 console.log("Changing to device");
                 fetch("https://api.spotify.com/v1/me/player", {
@@ -184,44 +186,44 @@ export default function App() {
         return (
 
 
-            <TokenContext.Provider value={[accessTokenState, setAccessToken]}>
-                <div className={styles.app}>
+            <TokenContext.Provider value={{accessTokenState}}>
+                <SongContext.Provider value={{currentSong}}>
+                    <div className={styles.app}>
 
-                    <div className={styles.navbar_wrapper}>
-                        <nav className={styles.navbar}>
-                            <div className={styles.logo}>moodply.</div>
-                            <Search />
-                            <Settings />
+                        <div className={styles.navbar_wrapper}>
+                            <nav className={styles.navbar}>
+                                <div className={styles.logo}>moodply.</div>
+                                <Search />
+                                <Settings />
 
-                        </nav>
-                    </div>
-
-                    <main className={styles.main}>
-                        <div className={styles.main_wrapper}>
-                            <div className={styles.main_left}>
-
-                                <div className={styles.album_swiper}>
-                                    <AlbumSwiper />
-                                </div>
-
-                                <div className={styles.player}>
-                                    <SongContext.Provider value={[currentSong]}>
-                                        <Player />
-                                    </SongContext.Provider>
-                                </div>
-                            </div>
-
-                            <div className={styles.main_right}>
-                                <AlbumContext.Provider value={[currentAlbum]}>
-                                    <AlbumList />
-                                </AlbumContext.Provider>
-                                <button onClick={() => { webplayer.togglePlay() }}>play</button>
-                            </div>
-
+                            </nav>
                         </div>
-                    </main>
 
-                </div>
+                        <main className={styles.main}>
+                            <div className={styles.main_wrapper}>
+                                <div className={styles.main_left}>
+
+                                    <div className={styles.album_swiper}>
+                                        <AlbumSwiper />
+                                    </div>
+
+                                    <div className={styles.player}>
+                                            <WebPlayerContext.Provider value={{webplayer}}>
+                                                <Player />
+                                            </WebPlayerContext.Provider>
+                                    </div>
+                                </div>
+
+                                <div className={styles.main_right}>
+                                    <AlbumContext.Provider value={{currentAlbum}}>
+                                        <AlbumList />
+                                    </AlbumContext.Provider>
+                                </div>
+
+                            </div>
+                        </main>
+                    </div>
+                </SongContext.Provider>
             </TokenContext.Provider>
         )
     }

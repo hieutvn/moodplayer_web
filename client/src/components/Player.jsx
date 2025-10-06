@@ -12,12 +12,14 @@ import { useContext } from "react";
 
 //CONTEXTS
 import { SongContext } from "./App";
+import { WebPlayerContext } from "./App";
 
 export default function Player() {
 
-  const [currentSong] = useContext(SongContext);
+  const {currentSong} = useContext(SongContext);
+  const {webplayer} = useContext(WebPlayerContext);
 
-  async function play() {
+  function play() {
 
     try {
 
@@ -32,9 +34,10 @@ export default function Player() {
     }
   }
 
-  return (
+  if (!webplayer) return (<p>Player loading...</p>);
+  else if (webplayer) {return (
     <footer className={styles.player}>
-
+      <button onClick={() => {play()}}></button>
       <div className={styles.track_info}>
         <p className={styles.track_artist}>
           {!currentSong ? "-" : currentSong.artists.map((artist) => artist.name).join(", ")}
@@ -69,13 +72,13 @@ export default function Player() {
             <button className={styles.next_album_btn}>
               <NextAlbumIcon className={styles.icon} />
             </button>
-            <button className={styles.prev_song_btn}>
+            <button className={styles.prev_song_btn} onClick={() => { webplayer.previousTrack() }}>
               <NextSongIcon className={styles.icon} style={{ transform: 'rotate(180deg)' }} />
             </button>
-            <button className={styles.play_stop_btn} onClick={play}>
+            <button className={styles.play_stop_btn} onClick={() => { webplayer.togglePlay() }}>
               <PlayIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} />
             </button>
-            <button className={styles.next_song_btn}>
+            <button className={styles.next_song_btn} onClick={() => { webplayer.nextTrack() }}>
               <NextSongIcon className={styles.icon} />
             </button>
             <button className={styles.next_album_btn}>
@@ -94,5 +97,5 @@ export default function Player() {
         </div>
       </div>
     </footer>
-  );
+  );}
 }
