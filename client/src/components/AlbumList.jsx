@@ -5,9 +5,9 @@ import { AlbumContext, TokenContext, SongContext } from './App';
 
 export default function AlbumList() {
 
-    const {currentAlbum} = useContext(AlbumContext);
-    const {accessTokenState} = useContext(TokenContext);
-    const {currentSong} = useContext(SongContext);
+    const { currentAlbum } = useContext(AlbumContext);
+    const { accessTokenState } = useContext(TokenContext);
+    const { currentSong } = useContext(SongContext);
 
     const [songs, setSongs] = useState([]);
     const [albumList, setAlbumList] = useState([]);
@@ -28,58 +28,61 @@ export default function AlbumList() {
         else if (hours <= 0)
             return `${minutes}:${String(seconds).padStart(2, "0")}`
     }
-    useEffect(() => {
+
+    const requestAlbum = useCallback(async (currentAlbum) => {
 
         if (!currentAlbum) return;
+
         const albumID = currentAlbum.uri.slice(14); // EXCLUDES "spotify:album:"
 
-        const requestAlbum = async () => {
+        try {
+            const fetchAlbum = await fetch(`https://api.spotify.com/v1/albums/${albumID}`, {
 
-            try {
-                const fetchAlbum = await fetch(`https://api.spotify.com/v1/albums/${albumID}`, {
+                method: 'GET',
+                headers: new Headers({
+                    Authorization: "Bearer " + accessTokenState,
+                })
+            });
 
-                    method: 'GET',
-                    headers: new Headers({
-                        Authorization: "Bearer " + accessTokenState,
-                    })
-                });
+            const album = await fetchAlbum.json();
 
-                const album = await fetchAlbum.json();
+            /// SET ARTIST ID ///
+            const artistID = album.artists[0].id;
+            if (artistID !== currentArtistID) setCurrentArtistID(artistID)
+            ///
 
+            sessionStorage.setItem(album.name, JSON.stringify({
+                album_name: album.name,
+                album_id: albumID,
+                album_img: album.images[0].url
+            }));
 
-                /// SET ARTIST ID ///
-                const artistID = album.artists[0].id;
-                if (artistID !== currentArtistID) setCurrentArtistID(artistID)
-                ///
+            //return album.tracks.items; // RETURNS ARRAY
 
-                //console.log("ALBUM", album)
-                sessionStorage.setItem(album.name, JSON.stringify({
-                    album_name: album.name,
-                    album_id: albumID,
-                    album_img: album.images[0].url
-                }));
-
-                //return album.tracks.items; // RETURNS ARRAY
-
-                album.tracks.items.map((item) => {
+            album.tracks.items.map((item) => {
 
                 // CHANGE IN ORDER TO AVOID DUPLICATES!!
                 setAlbumList(prev => [...prev, {
-                        artist: item.artists.map((artist) => artist.name).join(", "),
-                        name: item.name,
-                        //duration: (((item.duration_ms / 1000) / 60).toFixed(2))
-                        duration: formatDuration(item.duration_ms)
-                    }]);
-                })
-                
-            }
-            catch (error) { console.error(error) }
-            if (!accessTokenState) { throw new Error('No Token loaded.') }
-        }
-        requestAlbum()
-            .catch(console.error);
+                    artist: item.artists.map((artist) => artist.name).join(", "),
+                    name: item.name,
+                    //duration: (((item.duration_ms / 1000) / 60).toFixed(2))
+                    duration: formatDuration(item.duration_ms)
+                }]);
+            })
 
-    }, [currentAlbum]);
+        }
+        catch (error) { console.error(error) }
+    }, [accessTokenState]);
+
+    useEffect(() => {
+
+        if (!currentAlbum) return;
+
+        else if (requestAlbum) setAlbumList([]);
+        requestAlbum(currentAlbum);
+
+    }, [currentAlbum, requestAlbum]);
+
 
     useEffect(() => {
 
@@ -114,10 +117,13 @@ export default function AlbumList() {
 
     }, [currentArtistID]);
 
+
+
+
     /// ---> TBD. SESSIONSTORAGE UM KÜNSTLER KURZZEITIG ZU SPEICHERN UND ABZURUFEN Z.B. ID
 
     // <li key={index} className={`styles${ (item.name === currentSong.name) ? song_container.active : song_container}`}> 
-    
+
     if (!accessTokenState) { return <h1>Loading..</h1> }
     else if (albumList) {
         return (
@@ -125,7 +131,9 @@ export default function AlbumList() {
                 <div className={styles.artist_container}>
                     <div className={styles.artist_infos}>
                         <p className={styles.artist_name}>{currentArtistInfos.name}</p>
-                        <p>{currentArtistInfos.genres} &#9; {currentArtistInfos.followers} Followers</p>
+                        <p>{currentArtistInfos.followers ? (currentArtistInfos.followers).toLocaleString('de-DE') : 0} Followers</p>
+                        <hr></hr>
+                        <p>{!currentArtistInfos.genres ? "no genres" : currentArtistInfos.genres}</p>
                     </div>
                     <div className={styles.artist_img}>
                         <img src={currentArtistInfos.img} alt="Artist image" />
@@ -133,8 +141,12 @@ export default function AlbumList() {
                     </div>
                 </div >
                 <ul className={styles.list_container}>
-                    <span className={styles.list_upper}><p>Title</p> <p>Duration</p></span>
-                        <div className={styles.list_container_wrapper}>
+                    <span className={styles.list_upper}>
+                        <p style={{ width: "80%" }}>Title</p>
+                        <p style={{ width: "20%" }}>Duration</p>
+                    </span>
+                    <div className={styles.list_container_wrapper}>
+                        <div className={styles.list_container_scrollable}>
                             {
                                 albumList.map((item, index) => {
                                     const isActive = currentSong && item.name === currentSong.name;
@@ -146,12 +158,13 @@ export default function AlbumList() {
                                                 <div className={styles.song_artist}>{item.artist}</div>
                                             </div>
 
-                                            <div className={styles.song_duration}>{item.duration}</div>
+                                            <div className={isActive ? `${styles.song_duration} ${styles.active}` : styles.song_duration}>{item.duration}</div>
                                         </li>
                                     )
                                 })
                             }
                         </div>
+                    </div>
                 </ul>
             </div >
         )

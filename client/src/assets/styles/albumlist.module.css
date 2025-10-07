@@ -6,7 +6,7 @@
     height: 100%;
     background-color: var(--mp-midgrey);
     border: 1px solid var(--mp-white);
-    border-radius: 1rem;
+    border-radius: 2rem;
     overflow: hidden;
     font-family: var(--subheader-font);
     font-size: var(--text-fontsize_02);
@@ -45,6 +45,34 @@
     color: white;
     background: black;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    font-family: var(--subheader-font);
+    font-size: var(--text-fontsize);
+    padding: 1rem 1rem 0 1rem;
+}
+
+.artist_infos>hr {
+
+    width: 100%;
+    margin: .5rem 0 .5rem 0;
+    padding: 0;
+    opacity: .25;
+}
+
+.artist_infos>p {
+
+    padding: 0;
+    margin: 0;
+}
+
+.artist_infos>p:first-child {
+
+    font-family: var(--header-font);
+    font-size: var(--header-fontsize_02);
+    padding-bottom: .5rem;
 }
 
 .gradient {
@@ -70,64 +98,54 @@
     height: 85%;
     box-sizing: content-box;
     margin: 0;
-    padding: 1.5rem 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 0;
 }
 
 .list_container_wrapper {
 
     width: 100%;
-    height: 100%;
-    overflow-y: auto;
+    height: 90%;
+    overflow-y: scroll;
     overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--mp-lightgrey) var(--mp-midgrey);
+}
+
+.list_container_scrollable {
+    width: 100%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 0;
+
 }
 
 .list_upper {
 
     width: 90%;
-    display: grid;
-    grid-template-columns: 1.75fr .5fr;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-template-columns: 1.5fr 1fr;
     color: white;
     opacity: .5;
     font-family: var(--text-font);
     font-size: var(--text-fontsize);
+    margin: 1rem 1.25rem 0 1.25rem;
+
 }
 
 .song_container {
 
     width: 90%;
-    height: 3rem;
+    min-height: 3rem;
     display: flex;
     box-sizing: content-box;
     margin: 0;
-    padding: 0;
+    padding: 0 5% 0 5%;
     font-size: var(--text-fontsize_02);
     color: white;
-}
-
-
-/* Standalone .active class so it can be applied together with scoped classes
-   when using CSS Modules (e.g. `${styles.song_container} ${styles.active}`). */
-.active {
-    width: 90%;
-    background-color: var(--mp-lightgreen);
-    font-family: var(--header-font);
-    color: var(--mp-black);
-    padding: 0 5% 0 5%;
-}
-
-
-/* tbd. */
-
-.song_info {
-
-    width: 80%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 .song_container>div {
@@ -137,8 +155,33 @@
     justify-content: center;
 }
 
-.song_info .song_artist {
+.song_info {
 
+    width: 80%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    vertical-align: middle;
+    font-family: var(--subheader-font);
+
+}
+
+.song_title {
+
+    width: 90%;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: var(--header-font);
+
+}
+
+.song_artist {
+
+    width: 90%;
+    height: 50%;
     opacity: 0.5;
 }
 
@@ -146,6 +189,15 @@
 
     width: 20%;
     height: 100%;
-    font-family: var(--subheader-font);
+    padding: 0;
+
+}
+
+/* Standalone .active class so it can be applied together with scoped classes
+   when using CSS Modules (e.g. `${styles.song_container} ${styles.active}`). */
+.active {
+    background-color: var(--mp-lightgreen);
+    font-family: var(--header-font);
+    color: var(--mp-black);
 
 }

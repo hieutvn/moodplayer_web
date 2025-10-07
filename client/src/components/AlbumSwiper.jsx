@@ -1,6 +1,7 @@
 import styles from '../assets/styles/albumswiper.module.css';
 
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
+import { AlbumContext } from './App';
 
 
 let albums = [
@@ -12,6 +13,8 @@ let albums = [
 ]
 
 export default function AlbumSwiper() {
+
+    const { currentAlbum } = useContext(AlbumContext);
 
     const [index, setIndex] = useState(0);
 
@@ -25,18 +28,24 @@ export default function AlbumSwiper() {
         }
     }
 
+    useEffect(() => {
+
+        console.log("AAA", currentAlbum)
+    }, [currentAlbum])
+
+    if (!currentAlbum) return (<p>Title loading...</p>)
     return (
 
         <div className={styles.album_swiper} onWheel={handleScroll}>
             <div className={styles.album_covers}>
-                <div className={styles.album}></div>
+                <img src={currentAlbum.images[0].url} className={styles.album} />
 
             </div>
 
-
             <div className={styles.album_titles_wrapper}>
+                <div className={styles.gradient}></div>
                 <div className={styles.album_titles}>
-                    <p className={styles.title}>{sessionStorage.getItem("The Off-Season")}</p>
+                    <p className={styles.title}>{currentAlbum.name}</p>
                 </div>
             </div>
         </div >

@@ -7,8 +7,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: var(--mp-darkgrey);
-  border: 1px solid #374151;
+  background: var(--mp-black);
   box-sizing: border-box;
   padding: 0 3rem 1rem 3rem;
 }
@@ -122,15 +121,39 @@
 
 .volume {
 
-  width: 11rem;
-  height: 2rem;
-
   display: flex;
-  justify-content: space-around;
   align-items: center;
+  gap: 10px;
 }
 
-.volume_slider {}
+.volume_slider {
+
+  -webkit-appearance: none;
+  appearance: none;
+  width: 8rem;
+  height: .35rem;
+  background: var(--mp-lightgrey);
+  border-radius: .5rem;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.volume_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s ease;
+}
+
+.volume_slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
 
 .player_controls>button,
 .player_library>button {

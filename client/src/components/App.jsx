@@ -15,6 +15,7 @@ export const AlbumContext = createContext(null);
 export const PlayingContext = createContext(null);
 export const TokenContext = createContext(null);
 export const WebPlayerContext = createContext(null);
+export const IsPlayingContext = createContext(null);
 
 export default function App() {
 
@@ -29,6 +30,7 @@ export default function App() {
     const [currentAlbum, setCurrentAlbum] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [prevNextSong, setPrevNextSong] = useState({ prev: null, next: null });
+
 
     async function getToken() {
 
@@ -127,10 +129,12 @@ export default function App() {
 
                 if (!state) return;
 
-                console.log(state)
+                console.log("dd", state)
                 const data_currentSong = state.track_window.current_track;
                 const data_currentAlbum = state.track_window.current_track.album;
-                const data_isPlaying = !state.paused;
+                const data_isPlaying = state.paused;
+                setIsPlaying(data_isPlaying);
+
 
                 const prevSong = state.track_window.previous_tracks[0] ? state.track_window.previous_tracks[0].id : null; // --> WHEN NEW PLAYLIST IS LOADED, NO PREV OR NEXT TRACK FOUND = ERROR
                 const nextSong = state.track_window.next_tracks[0] ? state.track_window.next_tracks[0].id : null;
@@ -139,7 +143,6 @@ export default function App() {
 
                     setCurrentSong(data_currentSong);
                     setCurrentAlbum(data_currentAlbum);
-                    setIsPlaying(data_isPlaying);
                     prevNextSong.prev = prevSong;
                     prevNextSong.next = nextSong;
 
@@ -186,45 +189,48 @@ export default function App() {
         return (
 
 
-            <TokenContext.Provider value={{accessTokenState}}>
-                <SongContext.Provider value={{currentSong}}>
-                    <div className={styles.app}>
+            <TokenContext.Provider value={{ accessTokenState }}>
+                <SongContext.Provider value={{ currentSong }}>
+                    <AlbumContext.Provider value={{ currentAlbum }}>
+                        <div className={styles.app}>
 
-                        <div className={styles.navbar_wrapper}>
-                            <nav className={styles.navbar}>
-                                <div className={styles.logo}>moodply.</div>
-                                <Search />
-                                <Settings />
+                            <div className={styles.navbar_wrapper}>
+                                <nav className={styles.navbar}>
+                                    <div className={styles.logo}>moodply.</div>
+                                    <Search />
+                                    <Settings />
 
-                            </nav>
-                        </div>
-
-                        <main className={styles.main}>
-                            <div className={styles.main_wrapper}>
-                                <div className={styles.main_left}>
-
-                                    <div className={styles.album_swiper}>
-                                        <AlbumSwiper />
-                                    </div>
-
-                                    <div className={styles.player}>
-                                            <WebPlayerContext.Provider value={{webplayer}}>
-                                                <Player />
-                                            </WebPlayerContext.Provider>
-                                    </div>
-                                </div>
-
-                                <div className={styles.main_right}>
-                                    <AlbumContext.Provider value={{currentAlbum}}>
-                                        <AlbumList />
-                                    </AlbumContext.Provider>
-                                </div>
-
+                                </nav>
                             </div>
-                        </main>
-                    </div>
-                </SongContext.Provider>
-            </TokenContext.Provider>
+
+                            <main className={styles.main}>
+                                <div className={styles.main_wrapper}>
+                                    <div className={styles.main_left}>
+
+                                        <div className={styles.album_swiper}>
+                                            <AlbumSwiper />
+                                        </div>
+
+                                        <div className={styles.player}>
+                                            <IsPlayingContext.Provider value={{ isPlaying }}>
+                                                <WebPlayerContext.Provider value={{ webplayer }}>
+                                                    <Player />
+                                                </WebPlayerContext.Provider>
+                                            </IsPlayingContext.Provider>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.main_right}>
+
+                                        <AlbumList />
+                                    </div>
+
+                                </div>
+                            </main>
+                        </div>
+                    </AlbumContext.Provider>
+                </SongContext.Provider >
+            </TokenContext.Provider >
         )
     }
 }
