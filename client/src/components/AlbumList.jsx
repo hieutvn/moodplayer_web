@@ -29,7 +29,7 @@ export default function AlbumList() {
             return `${minutes}:${String(seconds).padStart(2, "0")}`
     }
 
-    const requestAlbum = useCallback(async (currentAlbum) => {
+/*     const requestAlbum = useCallback(async (currentAlbum) => {
 
         if (!currentAlbum) return;
 
@@ -46,6 +46,52 @@ export default function AlbumList() {
 
             const album = await fetchAlbum.json();
 
+            /// SET ARTIST ID ///
+            const artistID = album.artists[0].id;
+            if (artistID !== currentArtistID) setCurrentArtistID(artistID)
+            ///
+
+            sessionStorage.setItem(album.name, JSON.stringify({
+                album_name: album.name,
+                album_id: albumID,
+                album_img: album.images[0].url
+            }));
+
+            //return album.tracks.items; // RETURNS ARRAY
+
+            album.tracks.items.map((item) => {
+
+                // CHANGE IN ORDER TO AVOID DUPLICATES!!
+                setAlbumList(prev => [...prev, {
+                    artist: item.artists.map((artist) => artist.name).join(", "),
+                    name: item.name,
+                    //duration: (((item.duration_ms / 1000) / 60).toFixed(2))
+                    duration: formatDuration(item.duration_ms)
+                }]);
+            })
+
+        }
+        catch (error) { console.error(error) }
+    }, [accessTokenState]); */
+
+        const requestAlbum = useCallback(async (currentAlbum) => {
+
+        if (!currentAlbum) return;
+
+        const albumID = currentAlbum.uri.slice(14); // EXCLUDES "spotify:album:"
+
+        try {
+            const fetchAlbum = await fetch(`http://127.0.0.1:3000/api/calls/getalbum`, {
+
+                method: 'GET',
+                headers: new Headers({
+                    token: accessTokenState,
+                    album_id: albumID
+                })
+            });
+
+            const album = await fetchAlbum.json();
+ 
             /// SET ARTIST ID ///
             const artistID = album.artists[0].id;
             if (artistID !== currentArtistID) setCurrentArtistID(artistID)
@@ -93,15 +139,16 @@ export default function AlbumList() {
 
             try {
 
-                const fetchArtist = await fetch(`https://api.spotify.com/v1/artists/${currentArtistID}`, {
-                    method: 'GET',
-                    headers: new Headers({
-                        Authorization: "Bearer " + accessTokenState,
-                    })
-                });
+                const fetchArtist = await fetch(`http://127.0.0.1:3000/api/calls/getartist`, {
 
+                method: 'GET',
+                headers: new Headers({
+                    token: accessTokenState,
+                    artist_id: currentArtistID
+                })
+            });
                 const data = await fetchArtist.json();
-                console.log(data)
+               
                 setCurrentArtistInfos({
                     name: data.name,
                     img: data.images[0].url, // 640x640 

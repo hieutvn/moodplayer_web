@@ -36,7 +36,7 @@ export default function App() {
 
         try {
 
-            const request = await fetch("http://127.0.0.1:3000/api/calls/", {
+            const request = await fetch("http://127.0.0.1:3000/api/calls/token", {
 
                 method: "GET",
                 credentials: "include"
