@@ -59,7 +59,6 @@ export default function App() {
 
             const token = await getToken();
             setAccessToken(token);
-            //if (accessTokenState !== null) console.log("token", accessTokenState)
         }
 
         setToken()
@@ -129,7 +128,6 @@ export default function App() {
 
                 if (!state) return;
 
-                console.log("dd", state)
                 const data_currentSong = state.track_window.current_track;
                 const data_currentAlbum = state.track_window.current_track.album;
                 const data_isPlaying = state.paused;
@@ -160,35 +158,10 @@ export default function App() {
         }
     }, [accessTokenState]);
 
-    useEffect(() => {
-
-        if (!webplayer) return;
-
-        async function test() {
-            const state = await webplayer.getCurrentState();
-
-            if (!state) {
-                console.error('User is not playing music through the Web Playback SDK');
-                return;
-            }
-            console.log("GET CURR STATE", state)
-
-            const previous_track = state.track_window.previous_tracks[0];
-            const current_track = state.track_window.current_track;
-            const next_track = state.track_window.next_tracks[0];
-
-        }
-
-        test()
-
-    }, [currentAlbum])
-
 
     if (!webplayer) { return (<div>Loading Web Player...</div>) }
     else if (webplayer && accessTokenState) {
         return (
-
-
             <TokenContext.Provider value={{ accessTokenState }}>
                 <SongContext.Provider value={{ currentSong }}>
                     <AlbumContext.Provider value={{ currentAlbum }}>
@@ -199,7 +172,6 @@ export default function App() {
                                     <div className={styles.logo}>moodply.</div>
                                     <Search />
                                     <Settings />
-
                                 </nav>
                             </div>
 

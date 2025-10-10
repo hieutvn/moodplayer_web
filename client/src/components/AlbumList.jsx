@@ -87,7 +87,7 @@ export default function AlbumList() {
     useEffect(() => {
 
         if (!currentArtistID) return;
-        console.log("artist id in effect", currentArtistID)
+        console.log("artist id in effect", currentAlbum)
 
         const requestArtist = async () => {
 

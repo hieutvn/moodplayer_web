@@ -12,13 +12,31 @@ import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 import { useContext, useEffect, useState } from "react";
 
 //CONTEXTS
-import { SongContext, WebPlayerContext, IsPlayingContext } from "./App";
+import { SongContext, WebPlayerContext, IsPlayingContext, TokenContext } from "./App";
 
 export default function Player() {
 
   const { currentSong } = useContext(SongContext);
   const { webplayer } = useContext(WebPlayerContext);
   const { isPlaying } = useContext(IsPlayingContext);
+  const { accessTokenState } = useContext(TokenContext);
+
+  async function btnf() {
+
+    try {
+
+      const fetchNewAlbum = await fetch(`https://api.spotify.com/v1/albums?ids=382ObEPsp2rxGrnsizN5TX%2C1A2GTWGtFfWp7KSQTwWOyo%2C2noRn2Aes5aoNVsU6iWThc`, {
+        method: 'GET',
+        headers: new Headers({
+          Authorization: "Bearer " + accessTokenState,
+        })
+      });
+
+      const data = await fetchNewAlbum.json();
+      console.log(data)
+    }
+    catch (error) { console.log(error) }
+  }
 
 
   if (!webplayer) return (<p>Player loading...</p>);
@@ -42,6 +60,7 @@ export default function Player() {
 
         <div className={styles.track_time_wrapper}>
           <p className={styles.track_time}>00:00</p>
+          <button onClick={() => btnf()}>try</button>
           <p className={styles.track_time}>03:45</p>
         </div>
 
