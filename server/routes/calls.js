@@ -26,6 +26,7 @@ router.get("/token", (req, res) => {
 
 router.get("/getalbum", async (req, res) => {
     try {
+
         const accessToken = req.headers.token;
         const albumID = req.headers.album_id;
 
@@ -56,8 +57,9 @@ router.get("/getalbum", async (req, res) => {
 
 router.get("/getartist", async (req, res) => {
     try {
+
         const accessToken = req.headers.token;
-        const artistID = req.headers.artist_id; 
+        const artistID = req.headers.artist_id;
 
         const request = await fetch(`https://api.spotify.com/v1/artists/${artistID}`, {
             method: 'GET',

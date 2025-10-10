@@ -25,7 +25,7 @@ export default function Player() {
 
     try {
 
-      const fetchNewAlbum = await fetch(`https://api.spotify.com/v1/albums?ids=382ObEPsp2rxGrnsizN5TX%2C1A2GTWGtFfWp7KSQTwWOyo%2C2noRn2Aes5aoNVsU6iWThc`, {
+      const fetchNewAlbum = await fetch(`https://api.spotify.com/v1/artists/0Dvx6p8JDyzeOPGmaCIH1L/related-artists`, {
         method: 'GET',
         headers: new Headers({
           Authorization: "Bearer " + accessTokenState,
