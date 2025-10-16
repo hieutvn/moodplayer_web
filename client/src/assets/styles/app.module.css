@@ -56,13 +56,14 @@
 
 .main_left {
     height: 100%;
-    flex: 3;
+    flex: 2;
     display: grid;
     grid-template-rows: 1fr auto;
     background-color: var(--mp-darkgrey);
     border: 1px solid var(--mp-white);
     border-radius: 2.5rem;
     overflow: hidden;
+    box-sizing: content-box;
 }
 
 .album_swiper {
@@ -71,6 +72,7 @@
     height: 100%;
     box-sizing: border-box;
     overflow: hidden;
+
 }
 
 .player {

@@ -21,21 +21,23 @@ export default function Player() {
   const { isPlaying } = useContext(IsPlayingContext);
   const { accessTokenState } = useContext(TokenContext);
 
-  async function btnf() {
+
+  async function getPlaylist() {
+
 
     try {
 
-      const fetchNewAlbum = await fetch(`https://api.spotify.com/v1/artists/0Dvx6p8JDyzeOPGmaCIH1L/related-artists`, {
+      const fetchUser = await fetch(`http://127.0.0.1:3000/api/user/getuser`, {
+
         method: 'GET',
         headers: new Headers({
-          Authorization: "Bearer " + accessTokenState,
+          token: accessTokenState,
         })
       });
-
-      const data = await fetchNewAlbum.json();
-      console.log(data)
+      const data = await fetchUser.json();
+      console.log("user", data)
     }
-    catch (error) { console.log(error) }
+    catch (error) { console.error(error) }
   }
 
 
@@ -60,7 +62,7 @@ export default function Player() {
 
         <div className={styles.track_time_wrapper}>
           <p className={styles.track_time}>00:00</p>
-          <button onClick={() => btnf()}>try</button>
+          <button onClick={getPlaylist}>try</button>
           <p className={styles.track_time}>03:45</p>
         </div>
 
@@ -81,7 +83,9 @@ export default function Player() {
               <button className={styles.prev_song_btn} onClick={() => { webplayer.previousTrack() }}>
                 <NextSongIcon className={styles.icon} style={{ transform: 'rotate(180deg)' }} />
               </button>
-              <button className={styles.play_stop_btn} onClick={() => { webplayer.togglePlay() }}>
+              <button className={styles.play_stop_btn} onClick={() => {
+                webplayer.togglePlay()
+              }}>
                 {isPlaying ? <PlayIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} /> : <StopIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} />}
               </button>
               <button className={styles.next_song_btn} onClick={() => { webplayer.nextTrack() }}>

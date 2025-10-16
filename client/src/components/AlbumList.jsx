@@ -1,13 +1,14 @@
 import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
 import styles from '../assets/styles/albumlist.module.css';
 
-import { AlbumContext, TokenContext, SongContext } from './App';
+import { AlbumContext, TokenContext, SongContext, DeviceIdContext } from './App';
 
 export default function AlbumList() {
 
     const { currentAlbum } = useContext(AlbumContext);
     const { accessTokenState } = useContext(TokenContext);
     const { currentSong } = useContext(SongContext);
+    const { deviceId } = useContext(DeviceIdContext);
 
     const [songs, setSongs] = useState([]);
     const [albumList, setAlbumList] = useState([]);
@@ -18,70 +19,47 @@ export default function AlbumList() {
     const formatDuration = (duration) => {
 
         // DURATION IN MS
-        const totalSec = Number.parseInt(duration / 1000);
-        const seconds = totalSec % 60;
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const hours = Math.floor(totalSec / 3600);
+        const milliseconds = Number.parseInt(duration / 1000);
+        //const seconds = totalSec % 60; 262200
+        const time = (milliseconds / 60).toFixed(2);
 
-        if (hours > 0)
-            return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
-        else if (hours <= 0)
-            return `${minutes}:${String(seconds).padStart(2, "0")}`
+        let minutes = time.split(".")[0];
+        let seconds = time.split(".")[1];
+
+        if (seconds >= 60) {
+
+            seconds = seconds % 60;
+            minutes++;
+        }
+        //console.log("sec", seconds)
+
+        return (seconds < 10) ? `${minutes}:0${String(seconds)}` : `${minutes}:${String(seconds)}`;
     }
 
-    /*     const requestAlbum = useCallback(async (currentAlbum) => {
-    
-            if (!currentAlbum) return;
-    
-            const albumID = currentAlbum.uri.slice(14); // EXCLUDES "spotify:album:"
-    
-            try {
-                const fetchAlbum = await fetch(`https://api.spotify.com/v1/albums/${albumID}`, {
-    
-                    method: 'GET',
-                    headers: new Headers({
-                        Authorization: "Bearer " + accessTokenState,
-                    })
-                });
-    
-                const album = await fetchAlbum.json();
-    
-                /// SET ARTIST ID ///
-                const artistID = album.artists[0].id;
-                if (artistID !== currentArtistID) setCurrentArtistID(artistID)
-                ///
-    
-                sessionStorage.setItem(album.name, JSON.stringify({
-                    album_name: album.name,
-                    album_id: albumID,
-                    album_img: album.images[0].url
-                }));
-    
-                //return album.tracks.items; // RETURNS ARRAY
-    
-                album.tracks.items.map((item) => {
-    
-                    // CHANGE IN ORDER TO AVOID DUPLICATES!!
-                    setAlbumList(prev => [...prev, {
-                        artist: item.artists.map((artist) => artist.name).join(", "),
-                        name: item.name,
-                        //duration: (((item.duration_ms / 1000) / 60).toFixed(2))
-                        duration: formatDuration(item.duration_ms)
-                    }]);
-                })
-    
+    async function playSong(uri) {
+
+        if (!deviceId) return
+
+        await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                uris: [uri]  // z. B. ['spotify:track:4uLU6hMCjMI75M1A2tKUQC']
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessTokenState}`
             }
-            catch (error) { console.error(error) }
-        }, [accessTokenState]); */
+        });
+    }
 
     const requestAlbum = useCallback(async (currentAlbum) => {
 
         if (!currentAlbum) return;
-
+        console.log(currentAlbum)
         const albumID = currentAlbum.uri.slice(14); // EXCLUDES "spotify:album:"
 
         try {
-            const fetchAlbum = await fetch(`http://127.0.0.1:3000/api/calls/getalbum`, {
+            const fetchAlbum = await fetch(`http://127.0.0.1:3000/api/album/getalbum`, {
 
                 method: 'GET',
                 headers: new Headers({
@@ -89,6 +67,15 @@ export default function AlbumList() {
                     album_id: albumID
                 })
             });
+
+            /* 
+            options: {
+                headers: {
+                    album_id: albumID 
+                    }
+                    apiClient.request("album", "GET", null) ---> VLLT MÖGLICHKEIT
+                }
+            */
 
             const album = await fetchAlbum.json();
 
@@ -105,14 +92,16 @@ export default function AlbumList() {
 
             //return album.tracks.items; // RETURNS ARRAY
 
-            album.tracks.items.map((item) => {
 
+            album.tracks.items.map((item) => {
                 // CHANGE IN ORDER TO AVOID DUPLICATES!!
+                //console.log(item)
                 setAlbumList(prev => [...prev, {
                     artist: item.artists.map((artist) => artist.name).join(", "),
                     name: item.name,
                     //duration: (((item.duration_ms / 1000) / 60).toFixed(2))
-                    duration: formatDuration(item.duration_ms)
+                    duration: formatDuration(item.duration_ms),
+                    songUri: item.uri
                 }]);
             })
 
@@ -123,9 +112,9 @@ export default function AlbumList() {
     useEffect(() => {
 
         if (!currentAlbum) return;
-
         else if (requestAlbum) setAlbumList([]);
         requestAlbum(currentAlbum);
+
 
     }, [currentAlbum, requestAlbum]);
 
@@ -133,14 +122,13 @@ export default function AlbumList() {
     useEffect(() => {
 
         if (!currentArtistID) return;
-        console.log("artist id in effect", currentAlbum)
 
         const requestArtist = async () => {
 
             try {
 
                 console.log("id", currentArtistID)
-                const fetchArtist = await fetch(`http://127.0.0.1:3000/api/calls/getartist`, {
+                const fetchArtist = await fetch(`http://127.0.0.1:3000/api/artist/getartist`, {
 
                     method: 'GET',
                     headers: new Headers({
@@ -200,7 +188,8 @@ export default function AlbumList() {
                                     const isActive = currentSong && item.name === currentSong.name;
 
                                     return (
-                                        <li key={index} className={isActive ? `${styles.song_container} ${styles.active}` : styles.song_container}>
+                                        <li key={index} className={isActive ? `${styles.song_container} ${styles.active}` : `${styles.song_container} ${styles.none}`}
+                                            onClick={() => playSong(item.songUri)}>
                                             <div className={styles.song_info}>
                                                 <div className={styles.song_title}>{item.name}</div>
                                                 <div className={styles.song_artist}>{item.artist}</div>

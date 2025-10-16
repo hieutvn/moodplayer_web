@@ -4,8 +4,13 @@ import helmet from "helmet";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 
+import { attachToken } from "./middleware/token-middleware.js";
+
 import authRouter from './routes/auth.js';
-import callsRouter from './routes/calls.js';
+import tokenRouter from './routes/token.js';
+import userRouter from './routes/user.js';
+import albumRouter from './routes/album.js';
+import artistRouter from './routes/artist.js';
 
 const app = express();
 
@@ -43,12 +48,16 @@ app.use(session({
 },
 
 ));
+//app.use(attachToken);
 
 ///////////////
 /// ROUTES ///
 /////////////
 app.use("/api/auth", authRouter);
-app.use("/api/calls", callsRouter);
+app.use("/api/token", tokenRouter);
+app.use("/api/user", userRouter);
+app.use("/api/album", albumRouter);
+app.use("/api/artist", artistRouter);
 
 app.get("/", (req, res) => {
 

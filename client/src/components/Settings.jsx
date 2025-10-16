@@ -16,11 +16,11 @@ export default function Settings() {
         if (!accessTokenState) return;
 
         try {
-            const request = await fetch("https://api.spotify.com/v1/me", {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${accessTokenState}`
-                }
+            const request = await fetch("http://127.0.0.1:3000/api/user/getuser", {
+                method: 'GET',
+                headers: new Headers({
+                    token: accessTokenState,
+                })
             });
             const data = await request.json();
             console.log(data)

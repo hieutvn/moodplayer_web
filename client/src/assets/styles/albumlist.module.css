@@ -19,7 +19,7 @@
     display: flex;
     position: relative;
     overflow: hidden;
-    background-color: red;
+    background-color: var(--mp-black);
 }
 
 .artist_img {
@@ -90,6 +90,7 @@
 .artist_name {
 
     font-family: var(--header-font);
+
 }
 
 .list_container {
@@ -143,22 +144,35 @@
     display: flex;
     box-sizing: content-box;
     margin: 0;
-    padding: 0 5% 0 5%;
+    padding: 1% 5% 1% 5%;
     font-size: var(--text-fontsize_02);
     color: white;
 }
+
+.song_container.none:hover {
+
+    background-color: var(--mp-darkgrey);
+    cursor: pointer;
+}
+
+.song_container.active:hover {
+
+    cursor: pointer;
+}
+
 
 .song_container>div {
 
     display: flex;
     flex-direction: column;
     justify-content: center;
+
 }
 
 .song_info {
 
     width: 80%;
-    height: 100%;
+    height: 90%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -169,20 +183,23 @@
 
 .song_title {
 
-    width: 90%;
-    height: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    width: 95%;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-family: var(--header-font);
-
 }
 
 .song_artist {
 
-    width: 90%;
-    height: 50%;
+    width: 95%;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     opacity: 0.5;
+
 }
 
 .song_duration {

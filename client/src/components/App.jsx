@@ -16,27 +16,27 @@ export const PlayingContext = createContext(null);
 export const TokenContext = createContext(null);
 export const WebPlayerContext = createContext(null);
 export const IsPlayingContext = createContext(null);
+export const DeviceIdContext = createContext(null);
 
 export default function App() {
 
-    //TOKEN HANDLING
-    //setAccessToken(getToken());
+    //TOKEN HANDLING//
     const [accessTokenState, setAccessToken] = useState(null); // USEMEMO?
     const tokenWorkerRef = useRef(null);
     const [webplayer, setWebPlayer] = useState(null);
 
-    //SONG, ALBUM RELATED
+    //SONG, ALBUM RELATED//
     const [currentSong, setCurrentSong] = useState(null);
     const [currentAlbum, setCurrentAlbum] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [prevNextSong, setPrevNextSong] = useState({ prev: null, next: null });
-
+    const [deviceId, setDeviceId] = useState(null);
 
     async function getToken() {
 
         try {
 
-            const request = await fetch("http://127.0.0.1:3000/api/calls/token", {
+            const request = await fetch("http://127.0.0.1:3000/api/token/gettoken", {
 
                 method: "GET",
                 credentials: "include"
@@ -105,8 +105,8 @@ export default function App() {
             webplayer.addListener('ready', ({ device_id }) => {
 
                 console.log("Webplayer initialized. ID: ", device_id);
+                if (device_id) setDeviceId(device_id);
                 setWebPlayer(webplayer);
-                console.log("webplayer", webplayer)
 
                 console.log("Changing to device");
                 fetch("https://api.spotify.com/v1/me/player", {
@@ -131,15 +131,15 @@ export default function App() {
                 const data_currentSong = state.track_window.current_track;
                 const data_currentAlbum = state.track_window.current_track.album;
                 const data_isPlaying = state.paused;
-                setIsPlaying(data_isPlaying);
 
+                setIsPlaying(data_isPlaying);
+                setCurrentSong(data_currentSong);
 
                 const prevSong = state.track_window.previous_tracks[0] ? state.track_window.previous_tracks[0].id : null; // --> WHEN NEW PLAYLIST IS LOADED, NO PREV OR NEXT TRACK FOUND = ERROR
                 const nextSong = state.track_window.next_tracks[0] ? state.track_window.next_tracks[0].id : null;
 
                 if (prevSong && nextSong && prevNextSong.prev !== prevSong || prevNextSong.next !== nextSong) { // CHANGES WHEN USER SKIPS TRACK
 
-                    setCurrentSong(data_currentSong);
                     setCurrentAlbum(data_currentAlbum);
                     prevNextSong.prev = prevSong;
                     prevNextSong.next = nextSong;
@@ -165,41 +165,43 @@ export default function App() {
             <TokenContext.Provider value={{ accessTokenState }}>
                 <SongContext.Provider value={{ currentSong }}>
                     <AlbumContext.Provider value={{ currentAlbum }}>
-                        <div className={styles.app}>
+                        <DeviceIdContext.Provider value={{ deviceId }}>
+                            <div className={styles.app}>
 
-                            <div className={styles.navbar_wrapper}>
-                                <nav className={styles.navbar}>
-                                    <div className={styles.logo}>moodply.</div>
-                                    <Search />
-                                    <Settings />
-                                </nav>
-                            </div>
-
-                            <main className={styles.main}>
-                                <div className={styles.main_wrapper}>
-                                    <div className={styles.main_left}>
-
-                                        <div className={styles.album_swiper}>
-                                            <AlbumSwiper />
-                                        </div>
-
-                                        <div className={styles.player}>
-                                            <IsPlayingContext.Provider value={{ isPlaying }}>
-                                                <WebPlayerContext.Provider value={{ webplayer }}>
-                                                    <Player />
-                                                </WebPlayerContext.Provider>
-                                            </IsPlayingContext.Provider>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.main_right}>
-
-                                        <AlbumList />
-                                    </div>
-
+                                <div className={styles.navbar_wrapper}>
+                                    <nav className={styles.navbar}>
+                                        <div className={styles.logo}>moodply.</div>
+                                        <Search />
+                                        <Settings />
+                                    </nav>
                                 </div>
-                            </main>
-                        </div>
+
+                                <main className={styles.main}>
+                                    <div className={styles.main_wrapper}>
+                                        <div className={styles.main_left}>
+
+                                            <div className={styles.album_swiper}>
+                                                <AlbumSwiper />
+                                            </div>
+
+                                            <div className={styles.player}>
+                                                <IsPlayingContext.Provider value={{ isPlaying }}>
+                                                    <WebPlayerContext.Provider value={{ webplayer }}>
+                                                        <Player />
+                                                    </WebPlayerContext.Provider>
+                                                </IsPlayingContext.Provider>
+                                            </div>
+                                        </div>
+
+                                        <div className={styles.main_right}>
+
+                                            <AlbumList />
+                                        </div>
+
+                                    </div>
+                                </main>
+                            </div>
+                        </DeviceIdContext.Provider>
                     </AlbumContext.Provider>
                 </SongContext.Provider >
             </TokenContext.Provider >

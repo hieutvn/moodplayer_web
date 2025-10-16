@@ -84,12 +84,18 @@
 }
 
 .track_artist {
+  width: 90%;
   padding: 0;
   margin: 0 0 .5rem 0;
 }
 
 .track_title {
 
+  width: 90%;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: var(--header-fontsize);
   font-family: var(--header-font);
   color: white;
@@ -169,6 +175,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.player_library>button:hover {
+
+  cursor: pointer;
+  background: green;
+
+}
+
+.player_library.stroke:hover {
+  fill: green;
 }
 
 .icon {

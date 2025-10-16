@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import styles from '../assets/styles/search.module.css';
 
@@ -6,15 +6,25 @@ import SearchIcon from '../assets/icons/search_btn.svg';
 
 export default function Search() {
 
+  let moods = [];
+
   const [count, setCount] = useState(0);
-  const [tag, setTag] = useState("");
-  const [tagArr, setTagArr] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const wrapperRef = useRef(null);
 
+  useEffect(() => {
 
-  function addMoodTag(tag) {
+    function handleClickOutside(event) {
 
-    setTagArr()
-  }
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    }
+  }, []);
+
 
   return (
     <div className={styles.search}>
