@@ -140,6 +140,18 @@ export default function Search() {
           <p className={styles.tag_name}>soundtracks</p>
           <div className={styles.tag_close}>&#10006;</div>
         </button>
+                <button className={styles.tag}>
+          <p className={styles.tag_name}>soundtracks</p>
+          <div className={styles.tag_close}>&#10006;</div>
+        </button>
+                <button className={styles.tag}>
+          <p className={styles.tag_name}>soundtracks</p>
+          <div className={styles.tag_close}>&#10006;</div>
+        </button>
+                <button className={styles.tag}>
+          <p className={styles.tag_name}>soundtracks</p>
+          <div className={styles.tag_close}>&#10006;</div>
+        </button>
       </div>
     </div>
   )

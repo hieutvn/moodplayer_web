@@ -1,8 +1,7 @@
 import AddedIcon from "../assets/icons/add_album_btn.svg";
 import LogOutIcon from "../assets/icons/log_out_btn.svg";
 
-
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 
 import styles from '../assets/styles/settings.module.css';
 
@@ -16,10 +15,30 @@ export default function Settings() {
     const [profileData, setProfileData] = useState({});
     const [toggle, setToggle] = useState(false);
 
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+
+        function handleClickOutside(event) {
+
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setToggle(false);
+            }
+        }
+        document.addEventListener("click", handleClickOutside);
+
+        // UNMOUNT
+        return () => { document.removeEventListener("click", handleClickOutside); }
+    }, []);
+
     function clickProfile() {
 
         setToggle(!toggle)
-        console.log("click", toggle)
+        
+        if (toggle) {
+            
+            console.log("toggling", toggle)
+        }
     }
 
     useEffect(() => {
@@ -62,9 +81,18 @@ export default function Settings() {
         return (
 
             <div className={styles.settings}>
-                <div className={styles.profile} onClick={clickProfile}>
+                <div className={toggle ? `${styles.profile} ${styles.active}` : styles.profile} onClick={clickProfile}>
                     <p className={styles.profile_name}>{!profileData.name ? "no name" : profileData.name}</p>
                     <img className={styles.profile_img} src={loggedIn ? profileData.img : "#"} alt="Profile" />
+
+                    { toggle && (
+                        <div className={styles.profile_menu}>
+                            <p>Settings</p>
+                            <p>Logout</p>
+                        </div>
+
+
+                    )}
                 </div>
                 <div className={styles.added_songs}>
                     <AddedIcon className={styles.icon} />
