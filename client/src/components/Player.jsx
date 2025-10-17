@@ -22,25 +22,6 @@ export default function Player() {
   const { accessTokenState } = useContext(TokenContext);
 
 
-  async function getPlaylist() {
-
-
-    try {
-
-      const fetchUser = await fetch(`http://127.0.0.1:3000/api/user/getuser`, {
-
-        method: 'GET',
-        headers: new Headers({
-          token: accessTokenState,
-        })
-      });
-      const data = await fetchUser.json();
-      console.log("user", data)
-    }
-    catch (error) { console.error(error) }
-  }
-
-
   if (!webplayer) return (<p>Player loading...</p>);
   else if (webplayer) {
     return (
@@ -62,7 +43,6 @@ export default function Player() {
 
         <div className={styles.track_time_wrapper}>
           <p className={styles.track_time}>00:00</p>
-          <button onClick={getPlaylist}>try</button>
           <p className={styles.track_time}>03:45</p>
         </div>
 

@@ -3,15 +3,6 @@ import styles from '../assets/styles/albumswiper.module.css';
 import { useState, useContext, useEffect } from 'react';
 import { AlbumContext } from './App';
 
-
-let albums = [
-
-    { cover: "../assets/img/acrossthespiderverse.jpg", title: "METRO BOOMIN PRESENTS SPIDER‐MAN: ACROSS THE SPIDER‐VERSE: SOUNDTRACK FROM AND INSPIRED BY THE MOTION PICTURE" },
-    { cover: "../assets/img/topimpabutterfly.jpg", title: "To Pimp a Butterfly" },
-    { cover: "../assets/img/kingsdisease3.jpg", title: "King's Disease III" }
-
-]
-
 /* 
 NAAAHHHHHH 1/2
 function getAverageRGB(element) {

@@ -6,7 +6,6 @@ router.get("/getuser", async (req, res) => {
     try {
 
         const accessToken = req.headers.token;
-        const artistID = req.headers.artist_id;
 
         const request = await fetch(`https://api.spotify.com/v1/me/`, {
             method: 'GET',
