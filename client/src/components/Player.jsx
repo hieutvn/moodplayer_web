@@ -56,24 +56,35 @@ export default function Player() {
 
             </div>
 
+
             <div className={styles.player_controls}>
               <button className={styles.next_album_btn}>
                 <NextAlbumIcon className={styles.icon} />
               </button>
+              <p className={styles.icon_hide}>Previous Album</p>
+
               <button className={styles.prev_song_btn} onClick={() => { webplayer.previousTrack() }}>
                 <NextSongIcon className={styles.icon} style={{ transform: 'rotate(180deg)' }} />
               </button>
+              <p className={styles.icon_hide}>Previous Song</p>
+
               <button className={styles.play_stop_btn} onClick={() => {
                 webplayer.togglePlay()
               }}>
                 {isPlaying ? <PlayIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} /> : <StopIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} />}
               </button>
+              <p className={styles.icon_hide}>Play Song</p>
+
               <button className={styles.next_song_btn} onClick={() => { webplayer.nextTrack() }}>
                 <NextSongIcon className={styles.icon} />
               </button>
+              <p className={styles.icon_hide}>Next Song</p>
+
               <button className={styles.next_album_btn}>
                 <NextAlbumIcon className={styles.icon} />
               </button>
+              <p className={styles.icon_hide}>Next Album</p>
+
             </div>
 
             <div className={styles.player_library}>

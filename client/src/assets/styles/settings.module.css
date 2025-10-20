@@ -2,11 +2,9 @@
 
 .settings {
 
-    width: 25rem;
+    width: 10rem;
     height: 2.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
+
 }
 
 .profile {
@@ -43,12 +41,18 @@
     font-size: var(--text-fontsize);
     text-align: center;
     color: var(--mp-white);
+    z-index: 13;
+}
+
+.highlighted {
+
+    color: var(--mp-lightgreen);
 }
 
 .profile_menu {
 
     position: absolute;
-    width: 12rem    ;
+    width: 12rem;
     height: 7rem;
     top: 2.5rem;
     background-color: var(--mp-lightgrey);

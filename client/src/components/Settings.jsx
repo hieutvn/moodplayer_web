@@ -34,9 +34,9 @@ export default function Settings() {
     function clickProfile() {
 
         setToggle(!toggle)
-        
+
         if (toggle) {
-            
+
             console.log("toggling", toggle)
         }
     }
@@ -82,25 +82,18 @@ export default function Settings() {
 
             <div className={styles.settings}>
                 <div className={toggle ? `${styles.profile} ${styles.active}` : styles.profile} onClick={clickProfile}>
-                    <p className={styles.profile_name}>{!profileData.name ? "no name" : profileData.name}</p>
+                    <p className={toggle ? `${styles.profile_name} ${styles.highlighted}` : styles.profile_name}>{!profileData.name ? "no name" : profileData.name}</p>
                     <img className={styles.profile_img} src={loggedIn ? profileData.img : "#"} alt="Profile" />
 
-                    { toggle && (
+                    {toggle && (
                         <div className={styles.profile_menu}>
+                            <p>Added Songs</p>
                             <p>Settings</p>
                             <p>Logout</p>
                         </div>
-
-
                     )}
                 </div>
-                <div className={styles.added_songs}>
-                    <AddedIcon className={styles.icon} />
-                </div>
-                <div className={styles.log_out}>
-                    <LogOutIcon className={styles.icon} />
-                    <p>Log out</p>
-                </div>
+
             </div>
         )
     }

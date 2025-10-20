@@ -1,7 +1,10 @@
 import express from 'express';
 const router = express.Router();
 
-router.get("/getuser", async (req, res) => {
+import { APIService } from '../scripts/classes/APIService.js';
+
+
+/* router.get("/getuser", async (req, res) => {
 
     try {
 
@@ -24,7 +27,21 @@ router.get("/getuser", async (req, res) => {
         console.error(error);
         return res.status(500).json({ error: error.message || 'Internal server error' });
     }
+}); */
+
+router.get("/getuser", async (req, res) => {
+
+    const accessToken = req.headers.token;
+    if (!accessToken) return res.status(401).json({ error: "No access token" });
+
+    const getUserService = new APIService(accessToken);
+    const request = await getUserService.request("v1/me/", "GET");
+
+    if (!request) return res.status(500).json({ error: "Failed to fetch user" });
+
+    return res.status(200).json(request);
 });
+
 
 router.get("/getuserplaylist", async (req, res) => {
 

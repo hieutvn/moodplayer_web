@@ -48,7 +48,7 @@ app.use(session({
 },
 
 ));
-//app.use(attachToken);
+app.use(authenticateAccess)
 
 ///////////////
 /// ROUTES ///
@@ -64,16 +64,22 @@ app.get("/", (req, res) => {
     res.send("At /");
 });
 
-app.get("/dashboard", (req, res) => {
-
-    console.log("AT DASH")
-
-    res.send("DASHBOARD")
-});
-
-
 
 app.listen(PORT, "127.0.0.1", () => {
 
     console.log("Server listen on PORT ", PORT);
 });
+
+
+// EVTL ACCESSTOKEN MIDDLEWARE FOR CHECKING EXPIRY/RECEIVED
+function authenticateAccess(req, res, next) {
+    if (!req.session.access_token)
+        console.log("No access token.");
+
+    console.log(req.session.access_token);
+
+
+
+    next()
+
+}
