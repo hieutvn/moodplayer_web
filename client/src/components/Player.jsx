@@ -21,6 +21,12 @@ export default function Player() {
   const { isPlaying } = useContext(IsPlayingContext);
   const { accessTokenState } = useContext(TokenContext);
 
+  useEffect(() => {
+
+    webplayer.getVolume().then(volume => {
+      console.log("Current volume is: ", volume);
+    });
+  }, []);
 
   if (!webplayer) return (<p>Player loading...</p>);
   else if (webplayer) {
@@ -91,6 +97,7 @@ export default function Player() {
               <button className={styles.add_song_btn}>
                 <AddSongIcon className={styles.icon} />
               </button>
+              
               <button className={styles.add_album_btn}>
                 <AddAlbumIcon className={styles.icon} />
               </button>

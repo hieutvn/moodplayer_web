@@ -8,22 +8,31 @@ export class APIService {
 
     async request(endpoint, method, options = {}) {
         try {
+            // Build headers, merging optional headers if provided
+            let headers = {
+                Authorization: `Bearer ${this.token}`,
+                ...(options.headers || {})
+            };
+
+            // If there's a body and no content-type set, default to JSON
+            if (options.body && !('Content-Type' in Object.keys(headers).reduce((o, k) => (o[k.toLowerCase()] = headers[k], o), {}))) {
+                headers['Content-Type'] = 'application/json';
+            }
+
             const requestTo = await fetch(`${this.baseURL}${endpoint}`, {
-                method: `${method}`,
-                headers: {
+                method: method,
+                headers,
+                body: options.body ? JSON.stringify(options.body) : undefined,
+            });
 
-                    Authorization: `Bearer ${token}`, ...options.headers
-                },
-                ...options
-            })
-
-            if (!requestTo.ok) { throw new Error("Response at APIService failed: ", requestTo.status); }
-
+            if (!requestTo.ok) { throw new Error(`Response at APIService failed: ${requestTo.status}`); }
             const data = await requestTo.json();
-            return data;
+            
+            return data;    
         }
         catch (error) {
             console.error(error);
+            return null;
         }
     }
 

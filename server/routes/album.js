@@ -2,6 +2,8 @@ import express from 'express';
 const router = express.Router();
 
 import { Node, LinkedList } from "../scripts/classes/LinkedList.js"
+import { APIService } from '../scripts/classes/APIService.js';
+
 
 router.get("/getalbum", async (req, res) => {
     try {
@@ -12,28 +14,17 @@ router.get("/getalbum", async (req, res) => {
         if (!accessToken) return res.status(400).json({ error: 'Missing token header' });
         if (!albumID) return res.status(400).json({ error: 'Missing album_id header' });
 
-        const request = await fetch(`https://api.spotify.com/v1/albums/${albumID}`, {
-            method: 'GET',
-            headers: {
-                Authorization: "Bearer " + accessToken,
-            }
-        });
-
-        if (!request.ok) {
-            const text = await request.text();
-            console.error('Spotify API error:', request.status, text);
-            return res.status(request.status).send(text);
-        }
-
-        const album = await request.json();
-        return res.status(200).json(album);
+        const albumService = new APIService(accessToken);
+        const request = await albumService.request(`v1/albums/${albumID}`, "GET");
+        
+        if (!request) return res.status(500).json({ error: "Failed to fetch album data" });
+        return res.status(200).json(request);
     }
     catch (error) {
         console.error(error);
         return res.status(500).json({ error: error.message || 'Internal server error' });
     }
-});
-
+}); 
 
 async function recommand(token, moods) {
 
