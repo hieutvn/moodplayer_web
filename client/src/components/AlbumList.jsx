@@ -107,6 +107,7 @@ export default function AlbumList() {
 
         }
         catch (error) { console.error(error) }
+
     }, [accessTokenState]);
 
     useEffect(() => {
@@ -136,7 +137,7 @@ export default function AlbumList() {
                         artist_id: currentArtistID
                     })
                 });
-                
+
                 const data = await fetchArtist.json();
 
                 setCurrentArtistInfos({

@@ -2,9 +2,11 @@
 
 .settings {
 
-    width: 10rem;
+    width: 12rem;
     height: 2.25rem;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .profile {
@@ -16,6 +18,8 @@
     justify-content: space-evenly;
     box-sizing: content-box;
     padding: .25rem .5rem .25rem .5rem;
+    transition: .25s ease-in;
+
 }
 
 .active {
@@ -53,7 +57,7 @@
 
     position: absolute;
     width: 12rem;
-    height: 7rem;
+    height: 8.5rem;
     top: 2.5rem;
     background-color: var(--mp-lightgrey);
     border-radius: 0 0 1rem 1rem;
@@ -62,6 +66,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
 }
 
 .profile_menu>p {
@@ -80,7 +85,6 @@
 .profile_menu>p:hover {
 
     cursor: pointer;
-    color: var(--mp-lightgreen);
     background-color: var(--mp-midgrey);
     transition: .25s ease-in-out;
 }
@@ -116,15 +120,17 @@
     border-radius: 1.5rem;
 }
 
+
+
 .profile:hover {
 
     cursor: pointer;
     background-color: var(--mp-lightgrey);
-    transition: .25s ease-in-out;
     border-radius: 1.5rem;
-
 }
 
+/*
+CLASSES GONE 
 .added_songs:hover {
 
     cursor: pointer;
@@ -139,4 +145,4 @@
     cursor: pointer;
     background-color: var(--mp-lightgrey);
     transition: .25s ease-in-out;
-}
+} */

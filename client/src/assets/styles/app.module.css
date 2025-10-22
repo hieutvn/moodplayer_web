@@ -18,8 +18,9 @@
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    align-items: center;
+    justify-content: space-evenly;
     border-radius: 20rem;
+    box-sizing: content-box;
 }
 
 .logo {
@@ -28,6 +29,7 @@
     font-size: 1rem;
     color: var(--mp-white);
     text-align: center;
+    margin: .5rem;
 
 }
 

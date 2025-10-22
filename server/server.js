@@ -11,6 +11,7 @@ import tokenRouter from './routes/token.js';
 import userRouter from './routes/user.js';
 import albumRouter from './routes/album.js';
 import artistRouter from './routes/artist.js';
+import searchRouter from './routes/search.js';
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use("/api/token", tokenRouter);
 app.use("/api/user", userRouter);
 app.use("/api/album", albumRouter);
 app.use("/api/artist", artistRouter);
+app.use("/api/search", searchRouter);
 
 app.get("/", (req, res) => {
 

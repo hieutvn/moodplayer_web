@@ -9,7 +9,7 @@ import VolumeIcon from "../assets/icons/volume_btn.svg";
 import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 
 //CONTEXTS
 import { SongContext, WebPlayerContext, IsPlayingContext, TokenContext } from "./App";
@@ -21,12 +21,17 @@ export default function Player() {
   const { isPlaying } = useContext(IsPlayingContext);
   const { accessTokenState } = useContext(TokenContext);
 
-  useEffect(() => {
+  const [volume, setVolume] = useState(50);
 
-    webplayer.getVolume().then(volume => {
-      console.log("Current volume is: ", volume);
-    });
-  }, []);
+
+  const onChangeVolume = (event) => {
+
+    const volumePercentage = event.target.value;
+    setVolume(volumePercentage);
+    webplayer.setVolume(volume / 100);
+  }
+
+
 
   if (!webplayer) return (<p>Player loading...</p>);
   else if (webplayer) {
@@ -58,49 +63,74 @@ export default function Player() {
 
             <div className={styles.volume}>
               <VolumeIcon className={styles.icon} />
-              <input type="range" className={styles.volume_slider} max="100" />
+
+              <input
+                type="range" className={styles.volume_slider}
+                min="0"
+                max="100"
+                onChange={onChangeVolume}
+                value={volume}
+              />
 
             </div>
 
 
             <div className={styles.player_controls}>
-              <button className={styles.next_album_btn}>
-                <NextAlbumIcon className={styles.icon} />
-              </button>
-              <p className={styles.icon_hide}>Previous Album</p>
+              <div className={styles.tooltip}>
+                <span className={styles.tooltip_text}>Previous Album</span>
+                <button className={styles.next_album_btn}>
+                  <NextAlbumIcon className={styles.icon} />
+                </button>
+              </div>
 
-              <button className={styles.prev_song_btn} onClick={() => { webplayer.previousTrack() }}>
-                <NextSongIcon className={styles.icon} style={{ transform: 'rotate(180deg)' }} />
-              </button>
-              <p className={styles.icon_hide}>Previous Song</p>
+              <div className={styles.tooltip}>
+                <span className={styles.tooltip_text}>Previous Song</span>
+                <button className={styles.prev_song_btn} onClick={() => { webplayer.previousTrack() }}>
+                  <NextSongIcon className={styles.icon} style={{ transform: 'rotate(180deg)' }} />
+                </button>
+              </div>
 
-              <button className={styles.play_stop_btn} onClick={() => {
-                webplayer.togglePlay()
-              }}>
-                {isPlaying ? <PlayIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} /> : <StopIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} />}
-              </button>
-              <p className={styles.icon_hide}>Play Song</p>
+              <div className={styles.tooltip}>
+                <span className={styles.tooltip_text}>
+                  {isPlaying ? "Play" : "Stop"}
+                </span>
+                <button className={styles.play_stop_btn} onClick={() => {
+                  webplayer.togglePlay()
+                }}>
+                  {isPlaying ? <PlayIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} /> : <StopIcon className={styles.icon} style={{ width: '2.25rem', height: '2.25rem' }} />}
+                </button>
+              </div>
 
-              <button className={styles.next_song_btn} onClick={() => { webplayer.nextTrack() }}>
-                <NextSongIcon className={styles.icon} />
-              </button>
-              <p className={styles.icon_hide}>Next Song</p>
+              <div className={styles.tooltip}>
+                <span className={styles.tooltip_text}>Next Song</span>
+                <button className={styles.next_song_btn} onClick={() => { webplayer.nextTrack() }}>
+                  <NextSongIcon className={styles.icon} />
+                </button>
+              </div>
 
-              <button className={styles.next_album_btn}>
-                <NextAlbumIcon className={styles.icon} />
-              </button>
-              <p className={styles.icon_hide}>Next Album</p>
+              <div className={styles.tooltip}>
+                <span className={styles.tooltip_text}>Next Album</span>
+                <button className={styles.next_album_btn}>
+                  <NextAlbumIcon className={styles.icon} />
+                </button>
+              </div>
 
             </div>
 
             <div className={styles.player_library}>
-              <button className={styles.add_song_btn}>
-                <AddSongIcon className={styles.icon} />
-              </button>
-              
-              <button className={styles.add_album_btn}>
-                <AddAlbumIcon className={styles.icon} />
-              </button>
+              <div className={styles.tooltip}>
+                <span className={styles.tooltip_text}>Add Song</span>
+                <button className={styles.add_song_btn}>
+                  <AddSongIcon className={styles.icon} />
+                </button>
+              </div>
+
+              <div className={styles.tooltip}>
+                <span className={styles.tooltip_text}>Add Album</span>
+                <button className={styles.add_album_btn}>
+                  <AddAlbumIcon className={styles.icon} />
+                </button>
+              </div>
             </div>
           </div>
         </div>

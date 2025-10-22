@@ -16,7 +16,7 @@ router.get("/getalbum", async (req, res) => {
 
         const albumService = new APIService(accessToken);
         const request = await albumService.request(`v1/albums/${albumID}`, "GET");
-        
+
         if (!request) return res.status(500).json({ error: "Failed to fetch album data" });
         return res.status(200).json(request);
     }
@@ -24,7 +24,11 @@ router.get("/getalbum", async (req, res) => {
         console.error(error);
         return res.status(500).json({ error: error.message || 'Internal server error' });
     }
-}); 
+});
+
+router.get("/test", async (req, res) => {
+
+})
 
 async function recommand(token, moods) {
 
