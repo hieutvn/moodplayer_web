@@ -58,16 +58,23 @@ router.get("/", (req, res) => {
     res.json({ moodsArray });
 });
 
-router.get("/url", async (req, res) => {
+router.get("/url", (req, res) => {
 
+    console.log("on url")
     const accessToken = req.headers.token;
     if (!accessToken) return res.status(400).json({ error: 'Missing token header' });
 
     const moods = (req.headers.moods).split(" ");
     if (!moods) return res.status(400).json({ error: 'Missing moods header' });
 
-    const searchService = new APIService(accessToken);
-    const request = await searchService.request(`v1/search/q=${encodeURIComponent()}`, "GET");
+    //const searchService = new APIService(accessToken);
+    //const request = await searchService.request(`v1/search/q=${encodeURIComponent()}`, "GET");
+    let d = localStorage.getItem("test");
+    console.log(a)
+
+    res.status(200).json({
+        message: "ok"
+    })
 });
 
 

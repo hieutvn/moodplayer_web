@@ -49,7 +49,7 @@ app.use(session({
 },
 
 ));
-app.use(authenticateAccess)
+//app.use(authenticateAccess) --> AUTHENTICATE ACCESS tbd.
 
 ///////////////
 /// ROUTES ///

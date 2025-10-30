@@ -44,6 +44,25 @@ export default function Search() {
 
   useEffect(() => {
 
+    // WHEN CHANEGED COMMUNICATE TO SERVER THE MOODS
+    const req = async () => {
+
+      const t = await fetch("http://127.0.0.1:3000/api/search/url", {
+
+        method: 'GET'
+      })
+      const data = await t.json();
+      console.log(data)
+    }
+
+    localStorage.setItem("test", selectedMoods)
+    let d = localStorage.getItem("test");
+
+    console.log(d)
+  }, [selectedMoods]);
+
+  useEffect(() => {
+
     function handleClickOutside(event) {
 
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
