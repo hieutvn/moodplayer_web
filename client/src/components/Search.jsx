@@ -1,10 +1,16 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useContext } from 'react';
 
 import styles from '../assets/styles/search.module.css';
+import genres from '../assets/genres.json';
 
 import SearchIcon from '../assets/icons/search_btn.svg';
 
+import { TokenContext } from "./App";
+
+
 export default function Search() {
+
+  const { accessTokenState } = useContext(TokenContext);
 
   const [count, setCount] = useState(0);
   const [moods, setMoods] = useState([]);
@@ -16,50 +22,59 @@ export default function Search() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef(null);
 
+  ///
+
+  function useDebounce(value, delay) {
+
+    const [debounced, setDebounced] = useState(value);
+
+    useEffect(() => {
+
+      const handler = setTimeout(() => { setDebounced(value) }, delay);
+      return () => clearTimeout(handler);
+    }, [value]);
+
+    return debounced;
+  }
+
+  ///
+
+
   useEffect(() => {
 
-    const request = async () => {
+    for (const mood in genres) {
 
-      try {
-        const req = await fetch("http://127.0.0.1:3000/api/search/", {
+      setMoods(genres[mood])
 
-          method: 'GET'
-        });
-        const data = await req.json();
-        // Normalize API response to an array (supporting data.moodsArray or data.moods or raw array)
-        const moodsArray = data.moodsArray;
-        if (data) {
-
-        }
-        setMoods(data.moodsArray);
-        console.log(data)
-      }
-      catch (error) { console.error(error) }
     }
-
-    request()
-      .catch(console.error)
-
   }, []);
 
-  useEffect(() => {
+  const debounceQuery = useDebounce(inputValue, 1000);
 
-    // WHEN CHANEGED COMMUNICATE TO SERVER THE MOODS
-    const req = async () => {
+  const sendMoodList = useCallback(async () => {
 
-      const t = await fetch("http://127.0.0.1:3000/api/search/url", {
+    if (selectedMoods.length > 0) {
 
-        method: 'GET'
+      const request = await fetch(`http://127.0.0.1:3000/api/search/url?input=${debounceQuery}&type=album`, {
+
+        method: 'GET',
+        headers: {
+
+          token: accessTokenState,
+          moods: selectedMoods,
+        }
       })
-      const data = await t.json();
-      console.log(data)
+      const response = await request.json();
+
     }
 
-    localStorage.setItem("test", selectedMoods)
-    let d = localStorage.getItem("test");
+  }, [selectedMoods, debounceQuery])
 
-    console.log(d)
-  }, [selectedMoods]);
+  useEffect(() => {
+
+    console.log("send moods to server")
+    sendMoodList()
+  }, [sendMoodList])
 
   useEffect(() => {
 
@@ -89,9 +104,8 @@ export default function Search() {
     }
 
     // FILTER SUGGESTIONS THAT MATCH INPUT
-
     const searchMatches = moods.filter((letter) => {
-      // use the current userInput value and return the predicate
+
       return letter.toLowerCase().startsWith(userInput.toLowerCase())
     });
 
@@ -99,7 +113,6 @@ export default function Search() {
     setActiveIndex(-1);
     setShowSuggestions(true);
   };
-
 
   const onKeyDown = (event) => {
 
@@ -132,18 +145,11 @@ export default function Search() {
     // WHEN CLICKING ON SUGGESTION
     setInputValue(value);
     setShowSuggestions(false);
-    console.log("mood", value)
 
-    if (selectedMoods.length < 4 && !selectedMoods.includes(value)) {
-
-      setSelectedMoods(prev => [...prev, value]);
-    }
+    if (selectedMoods.length < 4 && !selectedMoods.includes(value)) { setSelectedMoods(prev => [...prev, value]); }
   }
 
-  const deleteSelectedMood = (value) => {
-    //setSelectedMoods(prev => prev.filter((selection) => { selection[value] = null }));
-    setSelectedMoods(prev => prev.filter((_, i) => i !== value));
-  };
+  const deleteSelectedMood = (value) => { setSelectedMoods(prev => prev.filter((_, i) => i !== value)); };
 
   if (!moods) {
     return (<h1>Loading moods.</h1>)
@@ -182,7 +188,7 @@ export default function Search() {
               )}
             </div>
             <div className={styles.search_btn}><SearchIcon className={styles.search_btn_icon} style={{ width: '1rem' }} /></div>
-            <div className={styles.tag_count}><span>{count}/4</span></div>
+            <div className={styles.tag_count}><span>{selectedMoods.length}/4</span></div>
 
           </div>
         </div>

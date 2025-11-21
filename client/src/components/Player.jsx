@@ -9,10 +9,10 @@ import VolumeIcon from "../assets/icons/volume_btn.svg";
 import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 
 //CONTEXTS
-import { SongContext, WebPlayerContext, IsPlayingContext, TokenContext } from "./App";
+import { SongContext, WebPlayerContext, IsPlayingContext, TokenContext, DeviceIdContext } from "./App";
 
 export default function Player() {
 
@@ -20,9 +20,12 @@ export default function Player() {
   const { webplayer } = useContext(WebPlayerContext);
   const { isPlaying } = useContext(IsPlayingContext);
   const { accessTokenState } = useContext(TokenContext);
+  const { deviceId } = useContext(DeviceIdContext);
 
   const [volume, setVolume] = useState(50);
-
+  const [playlist, setPlaylist] = useState([]);
+  const [nextAlbum, setNextAlbum] = useState(null);
+  const [prevAlbum, setPrevAlbum] = useState(null);
 
   const onChangeVolume = (event) => {
 
@@ -31,6 +34,60 @@ export default function Player() {
     webplayer.setVolume(volume / 100);
   }
 
+  const fetchCurrentPlaylist = useCallback(async () => {
+
+    try {
+
+      const request = await fetch("http://127.0.0.1:3000/api/search/getplaylist");
+      const data = await request.json();
+
+      if (data.playlist) {
+
+        data.playlist.map((element) => {
+
+          if (!playlist.includes(element)) {
+
+            console.log("rece playlist", element)
+
+            setPlaylist(prev => [...prev, element]);
+          }
+
+          //data.playlist.pop(element)
+        });
+
+      }
+    }
+    catch (error) { console.error(error) }
+  })
+
+  async function playAlbum(albumId) {
+
+    if (!albumId || !deviceId) return;
+
+    try {
+
+      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+
+        method: "PUT",
+        headers: {
+
+          Authorization: `Bearer ${accessTokenState}`,
+          "Content-Type": "application/json"
+        },
+        body: {
+
+          context_uri: albumId
+        }
+      });
+    }
+    catch (error) { console.error(error) }
+  }
+
+  useEffect(() => {
+
+    console.log("fetch playlist", playlist)
+    fetchCurrentPlaylist();
+  }, [playlist, fetchCurrentPlaylist])
 
 
   if (!webplayer) return (<p>Player loading...</p>);
@@ -110,7 +167,11 @@ export default function Player() {
 
               <div className={styles.tooltip}>
                 <span className={styles.tooltip_text}>Next Album</span>
-                <button className={styles.next_album_btn}>
+                <button className={styles.next_album_btn} onClick={() => {
+
+                  playAlbum(playlist[playlist.length - 1].id);
+                  playlist.pop();
+                }}>
                   <NextAlbumIcon className={styles.icon} />
                 </button>
               </div>

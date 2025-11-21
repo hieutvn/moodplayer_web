@@ -10,14 +10,17 @@ export class APIService {
         try {
             let headers = {
                 Authorization: `Bearer ${this.token}`,
+                'Content-Type': 'application/json',
                 ...(options.headers || {})
             };
 
+            /*             
             if (options.body && !('Content-Type' in Object.keys(headers).reduce((o, k) =>
-                (o[k.toLowerCase()] = headers[k], o),
-                {}))) {
-                headers['Content-Type'] = 'application/json';
-            }
+                            (o[k.toLowerCase()] = headers[k], o),
+                            {}))) {
+                            headers['Content-Type'] = 'application/json';
+                        } 
+                            */
 
             const requestTo = await fetch(`${this.baseURL}${endpoint}`, {
                 method: method,
@@ -32,7 +35,7 @@ export class APIService {
         }
         catch (error) {
             console.error(error);
-            return null;
+            return error;
         }
     }
 

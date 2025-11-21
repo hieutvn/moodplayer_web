@@ -3,55 +3,6 @@ import styles from '../assets/styles/albumswiper.module.css';
 import { useState, useContext, useEffect } from 'react';
 import { AlbumContext } from './App';
 
-/* 
-NAAAHHHHHH 1/2
-function getAverageRGB(element) {
-
-    // https://stackoverflow.com/questions/2541481/get-average-color-of-image-via-javascript
-
-    let blockSize = 5,
-        defaulRGB = { r: 0, g: 0, b: 0 },
-        canvas = document.createElement('canvas'),
-        context = canvas.getContext && canvas.getContext('2d'),
-        data,
-        width,
-        height,
-        i = -4,
-        length,
-        rgb = { r: 0, g: 0, b: 0 },
-        count = 0
-
-    if (!context) return defaulRGB;
-
-    width = canvas.width = element.naturalWidth || element.offsetWidth || element.width;
-    height = canvas.height = element.naturalHeight || element.offsetHeight || element.height;
-
-    context.drawImage(element, 0, 0);
-
-    try {
-        data = context.getImageData(0, 0, width, height);
-    }
-    catch (error) {
-        return defaulRGB;
-    }
-
-    length = data.data.length;
-
-    while ((i += blockSize * 4) < length) {
-
-        ++count;
-        rgb.r = data.data[i];
-        rgb.g = data.data[i + 1];
-        rgb.b = data.data[i + 2]
-
-    }
-
-    rgb.r = ~~(rgb.r / count); //  ~~ -> Rounding
-    rgb.g = ~~(rgb.g / count);
-    rgb.b = ~~(rgb.b / count);
-
-    return rgb;
-} */
 
 export default function AlbumSwiper() {
 
@@ -75,34 +26,6 @@ export default function AlbumSwiper() {
         if (!currentAlbum) return;
         setCurrentImg(currentAlbum.images[0].url);
     }, [currentAlbum]);
-
-    /* 
-    -> NAAHHHHHH 2/2
-    useEffect(() => {
-
-        if (!currentImg) return;
-
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.src = currentImg;
-        console.log("url", currentImg);
-
-        img.onload = () => {
-
-            try {
-                const color = getAverageRGB(img);
-                console.log("COLOR", color)
-
-                setAvgColor(color);
-
-            }
-            catch (error) { console.warn("Error while getting average color", error) }
-        }
-
-        img.onerror = (error) => { console.warn("Error while getting average color", error) }
-
-    }, [currentImg])
- */
 
     if (!currentAlbum) return (<p>Title loading...</p>)
     return (
