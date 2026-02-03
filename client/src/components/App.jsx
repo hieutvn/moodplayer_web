@@ -1,29 +1,21 @@
-import axios from 'axios';
 import styles from '../assets/styles/app.module.css';
 
 import AlbumList from './AlbumList';
-import Search from './Search';
+import UserInput from './UserInput.jsx';
 import Settings from './Settings';
 import Player from './Player';
 import AlbumSwiper from './AlbumSwiper';
+import Navigation from './Navigation';
 
-import { useEffect, useState, useRef, useContext, createContext, useMemo } from 'react';
-
-// CONTEXTS
-export const SongContext = createContext(null);
-export const AlbumContext = createContext(null);
-export const PlayingContext = createContext(null);
-export const TokenContext = createContext(null);
-export const WebPlayerContext = createContext(null);
-export const IsPlayingContext = createContext(null);
-export const DeviceIdContext = createContext(null);
+import { useEffect, useState, useMemo } from 'react';
+import { PlayerContext } from '../contexts.js';
 
 export default function App() {
 
     //TOKEN HANDLING//
-    const [accessTokenState, setAccessToken] = useState(null); // USEMEMO?
-    const tokenWorkerRef = useRef(null);
+    const [accessToken, setAccessToken] = useState(null);
     const [webplayer, setWebPlayer] = useState(null);
+    const [expiry, setExpiry] = useState(null);
 
     //SONG, ALBUM RELATED//
     const [currentSong, setCurrentSong] = useState(null);
@@ -32,44 +24,81 @@ export default function App() {
     const [prevNextSong, setPrevNextSong] = useState({ prev: null, next: null });
     const [deviceId, setDeviceId] = useState(null);
 
-    async function getToken() {
 
+    async function fetchToken() {
         try {
+            const request = await fetch("http://127.0.0.1:3000/api/auth/gettoken", {
+                credentials: "include",
+            });
+            // Cookie expired or missing: try refresh so we don't log out
+            if (request.status === 401) {
+                await refreshToken();
+                return;
+            }
+            if (!request.ok) throw new Error("No access token.");
 
-            const request = await fetch("http://127.0.0.1:3000/api/token/gettoken", {
+            const response = await request.json();
+            const token = response.access_token.access_token;
+            const expiresInSeconds = response.access_token.expires_in;
 
-                method: "GET",
-                credentials: "include"
-            })
-
-            const data = await request.json();
-
-            return data.access_token;
+            setAccessToken(token);
+            setExpiry(Date.now() + expiresInSeconds * 1000);
+        } catch (error) {
+            console.error(error);
         }
-        catch (error) {
+    }
 
-            console.log(error)
+    async function refreshToken() {
+        try {
+            const request = await fetch("http://127.0.0.1:3000/api/auth/refreshtoken", {
+                method: "POST",
+                credentials: "include",
+            });
 
+
+            const response = await request.json();
+            const { access_token, expires_in } = response;
+
+            if (!request.ok) {
+                if (request.status === 401) {
+                    // Refresh token expired or missing: redirect to login
+                    window.location.href = "/";
+                    return;
+                }
+                console.error("Failed to refresh token", request.status);
+                return;
+            }
+            setAccessToken(access_token);
+            setExpiry(Date.now() + expires_in * 1000);
+        } catch (error) {
+            console.error("Error refreshing token", error);
         }
     }
 
     useEffect(() => {
-
-        async function setToken() {
-
-            const token = await getToken();
-            setAccessToken(token);
-        }
-
-        setToken()
+        fetchToken()
             .catch(console.error);
-
     }, []);
+
+    useEffect(() => {
+        if (accessToken == null || expiry == null) return;
+
+        const timeNow = Date.now();
+        const bufferMs = 30_000;
+        const refreshIn = Math.max(0, (expiry - timeNow - bufferMs));
+
+        const timer = setTimeout(() => {
+            console.log("refreshing token")
+            refreshToken()
+        }, refreshIn);
+
+        return () => clearTimeout(timer);
+    }, [accessToken, expiry, webplayer]);
 
 
     useEffect(() => {
 
-        if (accessTokenState === null) return;
+        if (!accessToken) { return; }
 
         const script = document.createElement('script');
         script.src = "https://sdk.scdn.co/spotify-player.js";
@@ -81,7 +110,7 @@ export default function App() {
             const webplayer = new Spotify.Player({
 
                 name: 'Moodplayer Web Playback SDK',
-                getOAuthToken: cb => { cb(accessTokenState) },
+                getOAuthToken: cb => { cb(accessToken) },
                 volume: 0.5
             });
 
@@ -116,7 +145,7 @@ export default function App() {
                         play: false,
                     }),
                     headers: new Headers({
-                        Authorization: "Bearer " + accessTokenState,
+                        Authorization: "Bearer " + accessToken,
                     }),
                 }).then((response) => {
                     console.log(response)
@@ -147,7 +176,6 @@ export default function App() {
                     console.log("current prev", prevNextSong.prev)
                     console.log("current next", prevNextSong.next)
                 }
-
             });
 
             webplayer.connect()
@@ -156,55 +184,40 @@ export default function App() {
                     (success) ? console.log("The Web Playback SDK successfully connected to Spotify!") : console.error("Error");
                 });
         }
-    }, [accessTokenState]);
+
+    }, [accessToken]);
 
 
-    if (!webplayer) { return (<div>Loading Web Player...</div>) }
-    else if (webplayer && accessTokenState) {
-        return (
-            <TokenContext.Provider value={{ accessTokenState }}>
-                <SongContext.Provider value={{ currentSong }}>
-                    <AlbumContext.Provider value={{ currentAlbum }}>
-                        <DeviceIdContext.Provider value={{ deviceId }}>
-                            <div className={styles.app}>
+    const playerValue = useMemo(() => ({
+        accessToken,
+        currentSong,
+        currentAlbum,
+        isPlaying,
+        deviceId,
+        webplayer,
+    }), [accessToken, currentSong, currentAlbum, isPlaying, deviceId, webplayer]);
 
-                                <div className={styles.navbar_wrapper}>
-                                    <nav className={styles.navbar}>
-                                        <div className={styles.logo}>moodply.</div>
-                                        <Search />
-                                        <Settings />
-                                    </nav>
-                                </div>
 
-                                <main className={styles.main}>
-                                    <div className={styles.main_wrapper}>
-                                        <div className={styles.main_left}>
+    return (!accessToken || !webplayer) ?
 
-                                            <div className={styles.album_swiper}>
-                                                <AlbumSwiper />
-                                            </div>
-
-                                            <div className={styles.player}>
-                                                <IsPlayingContext.Provider value={{ isPlaying }}>
-                                                    <WebPlayerContext.Provider value={{ webplayer }}>
-                                                        <Player />
-                                                    </WebPlayerContext.Provider>
-                                                </IsPlayingContext.Provider>
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.main_right}>
-
-                                            <AlbumList />
-                                        </div>
-
-                                    </div>
-                                </main>
+        <h1>Player loading...</h1>
+        :
+        (
+            <PlayerContext.Provider value={playerValue}>
+                <div className={styles.app}>
+                    <Navigation />
+                    <main className={styles.main}>
+                        <div className={styles.main_wrapper}>
+                            <div className={styles.main_left}>
+                                <AlbumSwiper />
+                                <Player />
                             </div>
-                        </DeviceIdContext.Provider>
-                    </AlbumContext.Provider>
-                </SongContext.Provider >
-            </TokenContext.Provider >
-        )
-    }
+                            <div className={styles.main_right}>
+                                <AlbumList />
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </PlayerContext.Provider>
+        );
 }

@@ -12,43 +12,91 @@
   padding: 0 3rem 1rem 3rem;
 }
 
-/* progress bar src: https://codepen.io/manishady/pen/xGYvEK */
+/* Progress bar - range input synced with playback position */
 
 .progress_bar_wrapper {
-
   width: 100%;
   height: .35rem;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%) ease-in-out;
 }
 
-.progress_bar {
-  width: 75%;
-  height: 100%;
+.progress_slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: .35rem;
+  background: var(--mp-lightgrey);
+  border-radius: .5rem;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 1000;
+}
+
+.progress_slider:hover::-webkit-slider-thumb {
+  opacity: 1;
+  transform: scale(1.25);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.progress_slider[type="range"]::-webkit-slider-runnable-track {
+  height: .35rem;
+  border-radius: .5rem;
+  background: linear-gradient(to right,
+      var(--mp-lightgreen) 0 var(--value, 0%),
+      var(--mp-lightgrey) var(--value, 0%) 100%);
+}
+
+.progress_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background: var(--mp-white);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+  margin-top: -4px;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.progress_slider::-webkit-slider-thumb:hover {
+  opacity: 1;
+  transform: scale(1.25);
+  transition: transform 0.25s ease-in-out;
+}
+
+.progress_slider[type="range"]::-moz-range-track {
+  height: .35rem;
+  border-radius: .5rem;
+  background: var(--mp-lightgrey);
+}
+
+.progress_slider::-moz-range-progress {
+  height: .35rem;
+  border-radius: .5rem;
   background: var(--mp-lightgreen);
 }
 
-.progress_draggable_point {
-
-  position: relative;
-  left: 75%;
-  float: left;
-  margin: 0 10px 10px 0;
+.progress_slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--mp-white);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.progress_draggable_handle {
-
-  display: block;
-  position: absolute;
-  z-index: 1;
-  margin-top: -5px;
-  margin-left: -10px;
-  width: 10px;
-  height: 10px;
-  border: 4px solid #c3c3c3;
-  transform: rotate(45deg);
-  border-radius: 100%;
-  background-color: var(--mp-white);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
-  cursor: pointer;
+.progress_slider:hover::-moz-range-thumb {
+  opacity: 1;
+  transform: scale(1.12);
 }
 
 .track_time_wrapper {
@@ -141,14 +189,13 @@
 }
 
 
-/* WebKit / Blink */
+/* WebKit / Blink - track bar (--value set from JS for filled portion) */
 .volume_slider[type="range"]::-webkit-slider-runnable-track {
   height: .35rem;
   border-radius: .5rem;
   background: linear-gradient(to right,
-      var(--mp-lightgreen) 0 var(--value),
-      var(--mp-lightgrey) var(--value) 100%);
-
+      var(--mp-lightgreen) 0 var(--value, 0%),
+      var(--mp-lightgrey) var(--value, 0%) 100%);
 }
 
 .volume_slider::-webkit-slider-thumb {

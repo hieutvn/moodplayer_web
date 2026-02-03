@@ -1,23 +1,28 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import session from "express-session";
 import cookieParser from "cookie-parser";
+import dotenv from 'dotenv';
 
-import { attachToken } from "./middleware/token-middleware.js";
+
 
 import authRouter from './routes/auth.js';
-import tokenRouter from './routes/token.js';
 import userRouter from './routes/user.js';
 import albumRouter from './routes/album.js';
 import artistRouter from './routes/artist.js';
 import searchRouter from './routes/search.js';
+
+import { authenticateAccess } from "./routes/middleware/token-middleware.js";
+
+
+dotenv.config();
 
 const app = express();
 
 const corsOptions = {
 
     origin: "http://127.0.0.1:5173",
+    credentials: true
 }
 
 
@@ -26,7 +31,7 @@ const PORT = 3000;
 
 
 app.use(express.json());
-app.use(cookieParser("test"));
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(helmet.contentSecurityPolicy({
 
@@ -37,25 +42,15 @@ app.use(helmet.contentSecurityPolicy({
         frameSrc: ["'self'", "https://sdk.scdn.co"],
         connectSrc: ["'self'", "https://sdk.scdn.co", "https://api.spotify.com", "https://accounts.spotify.com"]
     }
-
+    
 }));
-app.use(session({
-
-    secret: 'accessToken',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 60000, secure: false },
-    signed: false
-},
-
-));
-//app.use(authenticateAccess) --> AUTHENTICATE ACCESS tbd.
+//app.use(authenticateAccess);
 
 ///////////////
 /// ROUTES ///
 /////////////
+
 app.use("/api/auth", authRouter);
-app.use("/api/token", tokenRouter);
 app.use("/api/user", userRouter);
 app.use("/api/album", albumRouter);
 app.use("/api/artist", artistRouter);
@@ -71,17 +66,3 @@ app.listen(PORT, "127.0.0.1", () => {
 
     console.log("Server listen on PORT ", PORT);
 });
-
-
-// EVTL ACCESSTOKEN MIDDLEWARE FOR CHECKING EXPIRY/RECEIVED
-function authenticateAccess(req, res, next) {
-    if (!req.session.access_token)
-        console.log("No access token.");
-
-    console.log(req.session.access_token);
-
-
-
-    next()
-
-}

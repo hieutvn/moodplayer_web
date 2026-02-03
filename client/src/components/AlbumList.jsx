@@ -1,14 +1,9 @@
-import { useEffect, useContext, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import styles from '../assets/styles/albumlist.module.css';
-
-import { AlbumContext, TokenContext, SongContext, DeviceIdContext } from './App';
+import { usePlayer } from '../contexts.js';
 
 export default function AlbumList() {
-
-    const { currentAlbum } = useContext(AlbumContext);
-    const { accessTokenState } = useContext(TokenContext);
-    const { currentSong } = useContext(SongContext);
-    const { deviceId } = useContext(DeviceIdContext);
+    const { currentAlbum, accessToken, currentSong, deviceId } = usePlayer();
 
     const [songs, setSongs] = useState([]);
     const [albumList, setAlbumList] = useState([]);
@@ -16,24 +11,15 @@ export default function AlbumList() {
     const [currentArtistInfos, setCurrentArtistInfos] = useState({ name: null, img: null, followers: null, genres: null });
 
 
-    const formatDuration = (duration) => {
+    const formatDuration = (ms) => {
 
-        // DURATION IN MS
-        const milliseconds = Number.parseInt(duration / 1000);
-        //const seconds = totalSec % 60; 262200
-        const time = (milliseconds / 60).toFixed(2);
+        if (!ms || isNaN(ms)) return "0:00";
 
-        let minutes = time.split(".")[0];
-        let seconds = time.split(".")[1];
+        const totalSec = Math.floor(ms / 1000);
+        const min = Math.floor(totalSec / 60);
+        const sec = totalSec % 60;
 
-        if (seconds >= 60) {
-
-            seconds = seconds % 60;
-            minutes++;
-        }
-        //console.log("sec", seconds)
-
-        return (seconds < 10) ? `${minutes}:0${String(seconds)}` : `${minutes}:${String(seconds)}`;
+        return `${min}:${sec.toString().padStart(2, "0")}`;
     }
 
     async function playSong(uri) {
@@ -47,7 +33,7 @@ export default function AlbumList() {
             }),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessTokenState}`
+                'Authorization': `Bearer ${accessToken}`
             }
         });
     }
@@ -63,7 +49,7 @@ export default function AlbumList() {
 
                 method: 'GET',
                 headers: new Headers({
-                    token: accessTokenState,
+                    token: accessToken,
                     album_id: albumID
                 })
             });
@@ -108,7 +94,7 @@ export default function AlbumList() {
         }
         catch (error) { console.error(error) }
 
-    }, [accessTokenState]);
+    }, [accessToken]);
 
     useEffect(() => {
 
@@ -133,7 +119,7 @@ export default function AlbumList() {
 
                     method: 'GET',
                     headers: new Headers({
-                        token: accessTokenState,
+                        token: accessToken,
                         artist_id: currentArtistID
                     })
                 });
@@ -162,7 +148,7 @@ export default function AlbumList() {
 
     // <li key={index} className={`styles${ (item.name === currentSong.name) ? song_container.active : song_container}`}> 
 
-    if (!accessTokenState) { return <h1>Loading..</h1> }
+    if (!accessToken) { return <h1>Loading..</h1> }
     else if (albumList) {
         return (
             <div className={styles.albumlist}>

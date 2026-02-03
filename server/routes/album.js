@@ -26,9 +26,6 @@ router.get("/getalbum", async (req, res) => {
     }
 });
 
-router.get("/test", async (req, res) => {
-
-})
 
 async function recommand(token, moods) {
 
@@ -48,7 +45,6 @@ async function recommand(token, moods) {
 
         let playlist = new LinkedList();
 
-        /* search?q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=album */
         const request = await fetch(`https://api.spotify.com/v1/`, {
 
             method: 'GET',
@@ -58,7 +54,6 @@ async function recommand(token, moods) {
             }
         })
         const data = await request.json();
-        console.log("davis alb ", data);
     }
     catch (error) {
 

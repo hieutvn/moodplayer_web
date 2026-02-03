@@ -1,24 +1,23 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from "cors";
 import querystring from 'querystring';
+import cookieParser from "cookie-parser";
 
-dotenv.config();
+import { generateLoginURL, generateAccessToken } from '../controllers/auth.controller.js';
+
 
 
 const router = express.Router();
 
 
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const CALLBACK_URI = process.env.CALLBACK_URI;
-
 const corsOptions = {
 
     origin: "http://127.0.0.1:5173",
+    credentials: true
 }
 
 router.use(cors(corsOptions));
+//router.use(cookieParser);
 
 router.get("/", (req, res) => {
 
@@ -27,123 +26,129 @@ router.get("/", (req, res) => {
 
 
 
+
 ////////////////////
 /// LOGIN ROUTE ///
 //////////////////
 
-
 router.get('/login', (req, res) => {
     console.log("Route at /login");
 
-    const scopes = [
-
-        "streaming",
-        "user-read-email",
-        "user-read-private",
-        "user-library-read",
-        "user-library-modify",
-        "user-read-playback-state",
-        "user-modify-playback-state",
-        "user-read-currently-playing"
-    ];
-
-    const state = generateRandomString(16);
-
-    const redirectURLParams = new URLSearchParams({
-        response_type: "code",
-        client_id: SPOTIFY_CLIENT_ID,
-        scope: scopes.join("%20"),
-        redirect_uri: CALLBACK_URI,
-        state: state
-
-    });
-
-    let redirectURL = `https://accounts.spotify.com/authorize?${redirectURLParams.toString()}`;
-
-    res.json({ redirectURL: redirectURL }).status(200);
-
+    const redirectURL = generateLoginURL();
+    res.status(200).json({ redirectURL: redirectURL });
 });
+
+
+
+
 
 
 ///////////////////////
 /// CALLBACK ROUTE ///
 /////////////////////
-router.get('/callback*', async (req, res, next) => {
+
+router.get('/callback', async (req, res, next) => {
     console.log("Route at /callback");
 
-    const authCode = req.query.code || null;
-    const state = req.query.state || null;
+    const authCode = req.query.code;
+    const state = req.query.state;
 
-    if (authCode === null && state === null) {
+    if (!authCode || !state) {
 
         res.redirect('/#' + querystring.stringify({
             error: 'state_mismatch'
         }));
     }
-    else {
-        try {
 
-            const accessURL = new URLSearchParams({
+    try {
 
-                code: authCode,
-                redirect_uri: CALLBACK_URI,
-                grant_type: "authorization_code"
-            });
+        const { access_token, refresh_token, expires_in } = await generateAccessToken(authCode);
 
-            const request = await fetch("https://accounts.spotify.com/api/token", {
 
-                method: "POST",
-                headers: {
+        res.
+            cookie("access_token", {
+                access_token: access_token,
+                expires_in: expires_in
+            }, {
 
-                    "Authorization": 'Basic ' + (new Buffer.from(SPOTIFY_CLIENT_ID + `:` + SPOTIFY_CLIENT_SECRET).toString('base64')),
-                    "Content-Type": 'application/x-www-form-urlencoded'
-                },
-                body: accessURL.toString(),
-                json: true
-            });
+                httpOnly: true,
+                secure: false, // aufg. localhost
+                sameSite: "strict",
+                maxAge: expires_in * 1000
+            })
+            .cookie("refresh_token", refresh_token, {
+                httpOnly: true,
+                secure: false, // aufg. localhost
+                sameSite: "strict",
+                path: "/api/auth/refreshtoken", // must match route so browser sends cookie
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            })
 
-            const data = await request.json();
-            const { access_token, refresh_token, expires_in } = data;
-
-            //console.log(access_token, refresh_token, expires_in);
-            req.tokens = { access_token, refresh_token, expires_in };
-
-            next();
-            // TOKENS RECEIVED
-        }
-        catch (error) { next(error) }
+        res.status(200).redirect("http://127.0.0.1:5173/dashboard");
     }
-}, (req, res) => {
-
-    const { access_token, refresh_token, expires_in } = req.tokens;
-    //res.cookie("AccessToken", access_token, { maxAge: 60000 })
-    req.session.visited = true
-    req.session.access_token = access_token
-
-
-    res.redirect("http://127.0.0.1:5173/dashboard");
+    catch (error) { next(error) }
 });
 
 
 
-//////////////////
-/// FUNCTIONS ///
-////////////////
-function generateRandomString(length) {
+router.get("/gettoken", (req, res, next) => {
 
-    let text = '';
-    let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    console.log("at gettoken");
 
-    for (let i = 0; i < length; i++) {
-
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    if (!req.cookies.access_token) {
+        return res.status(401).json({ message: "No token found." });
     }
-    return text;
-}
 
+    res.status(200).json({
+        access_token: req.cookies.access_token
+    });
+});
 
+router.post("/refreshtoken", async (req, res, next) => {
+    try {
 
+        const request = await fetch("https://accounts.spotify.com/api/token", {
 
+            method: "POST",
+            headers: {
+
+                "Content-Type": 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+
+                grant_type: "refresh_token",
+                refresh_token: req.cookies.refresh_token,
+                client_id: process.env.SPOTIFY_CLIENT_ID
+            })
+        });
+
+        const response = await request.json();
+
+        const { access_token, expires_in } = response;
+
+        res.cookie("access_token", {
+            access_token,
+            expires_in
+        }, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: expires_in * 1000
+        });
+
+        if (!response.ok || !response.access_token) {
+            return res.status(500).json({ error: "Failed to refresh access token" });
+        }
+
+        res.status(200).json({
+            access_token,
+            expires_in
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
 
 
 export default router;

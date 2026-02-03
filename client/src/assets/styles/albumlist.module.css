@@ -10,6 +10,7 @@
     overflow: hidden;
     font-family: var(--subheader-font);
     font-size: var(--text-fontsize_02);
+    resize: both;
 }
 
 .artist_container {
@@ -26,6 +27,8 @@
 
     flex: 1.5;
     height: 100%;
+
+
     position: relative;
 }
 

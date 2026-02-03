@@ -9,56 +9,68 @@ import VolumeIcon from "../assets/icons/volume_btn.svg";
 import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
-import { useContext, useEffect, useState, useRef, useCallback } from "react";
-
-//CONTEXTS
-import { SongContext, WebPlayerContext, IsPlayingContext, TokenContext, DeviceIdContext } from "./App";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { usePlayer } from "../contexts.js";
 
 export default function Player() {
-
-  const { currentSong } = useContext(SongContext);
-  const { webplayer } = useContext(WebPlayerContext);
-  const { isPlaying } = useContext(IsPlayingContext);
-  const { accessTokenState } = useContext(TokenContext);
-  const { deviceId } = useContext(DeviceIdContext);
+  const { currentSong, webplayer, isPlaying, accessToken, deviceId } = usePlayer();
 
   const [volume, setVolume] = useState(50);
   const [playlist, setPlaylist] = useState([]);
   const [nextAlbum, setNextAlbum] = useState(null);
   const [prevAlbum, setPrevAlbum] = useState(null);
+  const [position, setPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const lastSeekRef = useRef(0);
 
   const onChangeVolume = (event) => {
-
-    const volumePercentage = event.target.value;
+    const volumePercentage = Number(event.target.value);
     setVolume(volumePercentage);
-    webplayer.setVolume(volume / 100);
-  }
+    webplayer.setVolume(volumePercentage / 100);
+  };
 
+  const formatTime = (ms) => {
+    if (!ms || isNaN(ms)) return "0:00";
+
+    const totalSec = Math.floor(ms / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+
+    return `${min}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  const progressPercent = (duration > 0) ? (position / duration) * 100 : 0;
+
+  const onSeek = (event) => {
+    const ms = Number(event.target.value);
+    setPosition(ms);
+    lastSeekRef.current = Date.now();
+    webplayer.seek(ms);
+  };
+
+  // ANSCHAUEN
   const fetchCurrentPlaylist = useCallback(async () => {
 
     try {
 
-      const request = await fetch("http://127.0.0.1:3000/api/search/getplaylist");
+      const request = await fetch("http://127.0.0.1:3000/api/search/getplaylist", {
+        credentials: "include",
+      });
       const data = await request.json();
 
-      if (data.playlist) {
+      if (Array.isArray(data.playlist) && data.playlist.length > 0) {
 
-        data.playlist.map((element) => {
-
-          if (!playlist.includes(element)) {
-
-            console.log("rece playlist", element)
-
-            setPlaylist(prev => [...prev, element]);
-          }
-
-          //data.playlist.pop(element)
+        setPlaylist(prev => {
+          const existingIds = new Set(prev.map(p => p.id));
+          const newItems = data.playlist.filter(item => !existingIds.has(item.id));
+          if (newItems.length === 0) return prev;
+          console.log("received playlist items", newItems);
+          return [...prev, ...newItems];
         });
-
       }
     }
     catch (error) { console.error(error) }
-  })
+  }, []);
 
   async function playAlbum(albumId) {
 
@@ -71,28 +83,49 @@ export default function Player() {
         method: "PUT",
         headers: {
 
-          Authorization: `Bearer ${accessTokenState}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json"
         },
-        body: {
+        body:
 
-          context_uri: albumId
-        }
+          JSON.stringify({
+            context_uri: `spotify:album:${albumId}`
+
+          })
       });
     }
     catch (error) { console.error(error) }
   }
 
   useEffect(() => {
-
-    console.log("fetch playlist", playlist)
     fetchCurrentPlaylist();
-  }, [playlist, fetchCurrentPlaylist])
+  }, [fetchCurrentPlaylist]);
 
 
-  if (!webplayer) return (<p>Player loading...</p>);
-  else if (webplayer) {
-    return (
+  useEffect(() => {
+    if (!webplayer) return;
+
+    const updateProgress = () => {
+      if (Date.now() - lastSeekRef.current < 1500) return;
+
+      webplayer.getCurrentState().then((state) => {
+        if (!state) return;
+        setPosition(state.position);
+        setDuration(state.duration);
+      });
+    };
+
+
+    const interval = setInterval(() => { updateProgress() }, 150);
+
+    return () => clearInterval(interval);
+  }, [webplayer, isPlaying]);
+
+
+  return (!webplayer) ?
+    (<p>Player loading...</p>)
+    :
+    (
       <footer className={styles.player}>
         <div className={styles.track_info}>
           <p className={styles.track_artist}>
@@ -103,15 +136,20 @@ export default function Player() {
           </p>
         </div>
         <div className={styles.progress_bar_wrapper}>
-          <div className={styles.progress_draggable_point}>
-            <div className={styles.progress_draggable_handle}></div>
-          </div>
-          <div className={styles.progress_bar}></div>
+          <input
+            type="range"
+            className={styles.progress_slider}
+            min={0}
+            max={duration || 1}
+            value={position}
+            onChange={onSeek}
+            style={{ "--value": `${progressPercent}%` }}
+          />
         </div>
 
         <div className={styles.track_time_wrapper}>
-          <p className={styles.track_time}>00:00</p>
-          <p className={styles.track_time}>03:45</p>
+          <p className={styles.track_time}>{formatTime(position)}</p>
+          <p className={styles.track_time}>{formatTime(duration)}</p>
         </div>
 
         <div className={styles.player_wrapper}>
@@ -122,11 +160,13 @@ export default function Player() {
               <VolumeIcon className={styles.icon} />
 
               <input
-                type="range" className={styles.volume_slider}
+                type="range"
+                className={styles.volume_slider}
                 min="0"
                 max="100"
                 onChange={onChangeVolume}
                 value={volume}
+                style={{ "--value": `${volume}%` }}
               />
 
             </div>
@@ -169,8 +209,11 @@ export default function Player() {
                 <span className={styles.tooltip_text}>Next Album</span>
                 <button className={styles.next_album_btn} onClick={() => {
 
-                  playAlbum(playlist[playlist.length - 1].id);
-                  playlist.pop();
+                  if (!playlist.length) return;
+                  const next = playlist[playlist.length - 1];
+                  playAlbum(next.id);
+                  // remove the last element immutably
+                  setPlaylist(prev => prev.slice(0, -1));
                 }}>
                   <NextAlbumIcon className={styles.icon} />
                 </button>
@@ -197,5 +240,4 @@ export default function Player() {
         </div>
       </footer>
     );
-  }
 }

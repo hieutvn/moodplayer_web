@@ -1,15 +1,12 @@
 import AddedIcon from "../assets/icons/add_album_btn.svg";
 import LogOutIcon from "../assets/icons/log_out_btn.svg";
 
-import { useContext, useEffect, useState, useRef } from 'react';
-
+import { useEffect, useState, useRef } from 'react';
 import styles from '../assets/styles/settings.module.css';
-
-import { TokenContext } from '../components/App';
+import { usePlayer } from '../contexts.js';
 
 export default function Settings() {
-
-    const { accessTokenState } = useContext(TokenContext);
+    const { accessToken } = usePlayer();
 
     const [loggedIn, setLoggedIn] = useState(false);
     const [profileData, setProfileData] = useState({});
@@ -43,21 +40,21 @@ export default function Settings() {
 
     useEffect(() => {
 
-        if (!accessTokenState) { setLoggedIn(false); }
+        if (!accessToken) { setLoggedIn(false); }
         setLoggedIn(true);
 
-    }, [accessTokenState]);
+    }, [accessToken]);
 
     useEffect(() => {
 
         const getProfile = async () => {
 
-            if (!accessTokenState) return;
+            if (!accessToken) return;
 
             const request = await fetch("http://127.0.0.1:3000/api/user/getuser", {
                 method: 'GET',
                 headers: new Headers({
-                    token: accessTokenState,
+                    token: accessToken,
                 })
             });
             const data = await request.json();
@@ -74,7 +71,7 @@ export default function Settings() {
         getProfile()
             .catch(console.error)
 
-    }, [loggedIn]);
+    }, [loggedIn, accessToken]);
 
     if (!loggedIn) { return (<h3>Loading...</h3>) }
     else if (loggedIn) {
