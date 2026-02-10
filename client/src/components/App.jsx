@@ -9,6 +9,7 @@ import Navigation from './Navigation';
 
 import { useEffect, useState, useMemo } from 'react';
 import { PlayerContext } from '../contexts.js';
+import { useAuth } from '../hooks/useAuth.js';
 
 export default function App() {
 
@@ -24,76 +25,13 @@ export default function App() {
     const [prevNextSong, setPrevNextSong] = useState({ prev: null, next: null });
     const [deviceId, setDeviceId] = useState(null);
 
-
-    async function fetchToken() {
-        try {
-            const request = await fetch("http://127.0.0.1:3000/api/auth/gettoken", {
-                credentials: "include",
-            });
-            // Cookie expired or missing: try refresh so we don't log out
-            if (request.status === 401) {
-                await refreshToken();
-                return;
-            }
-            if (!request.ok) throw new Error("No access token.");
-
-            const response = await request.json();
-            const token = response.access_token.access_token;
-            const expiresInSeconds = response.access_token.expires_in;
-
-            setAccessToken(token);
-            setExpiry(Date.now() + expiresInSeconds * 1000);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async function refreshToken() {
-        try {
-            const request = await fetch("http://127.0.0.1:3000/api/auth/refreshtoken", {
-                method: "POST",
-                credentials: "include",
-            });
-
-
-            const response = await request.json();
-            const { access_token, expires_in } = response;
-
-            if (!request.ok) {
-                if (request.status === 401) {
-                    // Refresh token expired or missing: redirect to login
-                    window.location.href = "/";
-                    return;
-                }
-                console.error("Failed to refresh token", request.status);
-                return;
-            }
-            setAccessToken(access_token);
-            setExpiry(Date.now() + expires_in * 1000);
-        } catch (error) {
-            console.error("Error refreshing token", error);
-        }
-    }
+    const { accessTokenVal } = useAuth();
 
     useEffect(() => {
-        fetchToken()
-            .catch(console.error);
-    }, []);
+        if (!accessTokenVal) return;
 
-    useEffect(() => {
-        if (accessToken == null || expiry == null) return;
-
-        const timeNow = Date.now();
-        const bufferMs = 30_000;
-        const refreshIn = Math.max(0, (expiry - timeNow - bufferMs));
-
-        const timer = setTimeout(() => {
-            console.log("refreshing token")
-            refreshToken()
-        }, refreshIn);
-
-        return () => clearTimeout(timer);
-    }, [accessToken, expiry, webplayer]);
+        setAccessToken(accessTokenVal)
+    }, [accessTokenVal]);
 
 
     useEffect(() => {

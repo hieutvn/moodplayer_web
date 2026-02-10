@@ -3,6 +3,7 @@ import Settings from './Settings';
 
 import styles from '../assets/styles/navigation.module.css';
 
+
 export default function Navigation() {
     return (
         <div className={styles.navbar_wrapper}>

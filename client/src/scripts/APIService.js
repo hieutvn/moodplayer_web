@@ -1,53 +1,47 @@
 export class APIService {
 
     constructor(token) {
-        this.token = token;
+
         this.baseURL = "https://api.spotify.com/v1";
     }
 
-    setToken(token) {
-        if (typeof token === "string" && token.length > 0) {
-            this.token = token;
-        } else {
-            console.error("Token invalid");
-        }
-    }
-
-    getToken() {
-        return this.token || null;
-    }
-
     async request(endpoint, method, options = {}) {
-        if (!this.token) {
-            throw new Error("Missing access token for APIService request");
-        }
 
         try {
-            const url = `${this.baseURL}/${endpoint}${options.headers?.id ? `/${options.headers.id}` : ""}`;
+            const fetchReq = await fetch(`${this.baseURL}/${endpoint}/${!options.headers.id ? "" : options.headers.id}`, {
 
-            const fetchReq = await fetch(url, {
-                method,
-                headers: {
-                    Authorization: `Bearer ${this.token}`,
-                    ...(options.headers || {}),
-                },
-                body: options.body ? JSON.stringify(options.body) : undefined,
+                method: method,
+                headers: { Authorization: 'Bearer ' + `${this.token}`, ...options.headers },
+                body: (options.body) ? JSON.stringify(options.body) : undefined
             });
 
-            // Let callers handle 401/other errors explicitly
-            if (!fetchReq.ok) {
-                const text = await fetchReq.text();
-                throw new Error(`Spotify API error ${fetchReq.status}: ${text}`);
+            if (fetchReq.status === 401) {
+
+                const request = await fetch("http://127.0.0.1:3000/api/auth/refreshtoken");
+                const response = await request.json();
+
+                return response;
             }
 
+            // return parsed JSON body
             return await fetchReq.json();
         }
         catch (error) {
+
             console.error("FETCH REQUEST FAILED: ", error);
             throw error;
         }
     }
+
+    setToken(token) {
+
+        if (token !== null && typeof token === "string") { this.token = token }
+        console.error("Token invalid")
+    }
+
+    getToken() { return !(token) ? null : this.token }
 }
+
 
 
 export async function BackendFetch(method, endpoint, options = {}) {

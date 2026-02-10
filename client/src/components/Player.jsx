@@ -9,7 +9,7 @@ import VolumeIcon from "../assets/icons/volume_btn.svg";
 import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { usePlayer } from "../contexts.js";
 
 export default function Player() {
@@ -35,8 +35,12 @@ export default function Player() {
     const totalSec = Math.floor(ms / 1000);
     const min = Math.floor(totalSec / 60);
     const sec = totalSec % 60;
+    const hrs = (min > 60) ? Math.floor(min / 60) : 0;
 
-    return `${min}:${sec.toString().padStart(2, "0")}`;
+    return hrs >= 1 ?
+      `0${hrs}:${min % 60}:${sec.toString().padStart(2, "0")}`
+      :
+      `${min}:${sec.toString().padStart(2, "0")}`;
   };
 
   const progressPercent = (duration > 0) ? (position / duration) * 100 : 0;
@@ -54,6 +58,7 @@ export default function Player() {
     try {
 
       const request = await fetch("http://127.0.0.1:3000/api/search/getplaylist", {
+        method: "GET",
         credentials: "include",
       });
       const data = await request.json();
@@ -65,12 +70,36 @@ export default function Player() {
           const newItems = data.playlist.filter(item => !existingIds.has(item.id));
           if (newItems.length === 0) return prev;
           console.log("received playlist items", newItems);
+
           return [...prev, ...newItems];
         });
       }
+      console.log(playlist)
     }
     catch (error) { console.error(error) }
   }, []);
+
+  // Fetch playlist and merge into local state (avoid duplicates by id)
+  async function fetchAndSetPlaylist() {
+    try {
+      const res = await fetch("http://127.0.0.1:3000/api/search/getplaylist", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const incoming = data.playlist || [];
+
+      setPlaylist((prev) => {
+        const map = new Map(prev.map((p) => [p.id, p]));
+        for (const item of incoming) map.set(item.id, item);
+        return Array.from(map.values());
+      });
+      return incoming;
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   async function playAlbum(albumId) {
 
@@ -97,9 +126,6 @@ export default function Player() {
     catch (error) { console.error(error) }
   }
 
-  useEffect(() => {
-    fetchCurrentPlaylist();
-  }, [fetchCurrentPlaylist]);
 
 
   useEffect(() => {
@@ -231,7 +257,7 @@ export default function Player() {
 
               <div className={styles.tooltip}>
                 <span className={styles.tooltip_text}>Add Album</span>
-                <button className={styles.add_album_btn}>
+                <button className={styles.add_album_btn} onClick={() => fetchCurrentPlaylist()}>
                   <AddAlbumIcon className={styles.icon} />
                 </button>
               </div>

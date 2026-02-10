@@ -38,11 +38,4 @@ export class APIService {
             return error;
         }
     }
-
-
-    getRequest() { }
-    postRequest() { }
-    putRequest() { }
-    deleteRequest() { }
-
 }

@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import dotenv from 'dotenv';
-
+import session from "express-session";
 
 
 import authRouter from './routes/auth.js';
@@ -42,9 +42,21 @@ app.use(helmet.contentSecurityPolicy({
         frameSrc: ["'self'", "https://sdk.scdn.co"],
         connectSrc: ["'self'", "https://sdk.scdn.co", "https://api.spotify.com", "https://accounts.spotify.com"]
     }
-    
+
 }));
-//app.use(authenticateAccess);
+
+app.use(session({
+    name: "sid",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.SESSION_COOKIE === 'true',
+        maxAge: (1000 * 60 * 60) * 24
+    }
+}));
 
 ///////////////
 /// ROUTES ///

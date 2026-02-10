@@ -15,6 +15,9 @@ export function useMoodAutocomplete(moods, onSelect) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const wrapperRef = useRef(null);
+  const inputValueRef = useRef('');
+
+  inputValueRef.current = inputValue;
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -27,32 +30,44 @@ export function useMoodAutocomplete(moods, onSelect) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  const onChange = useCallback(
-    (event) => {
-      const userInput = event.target.value;
-      setInputValue(userInput);
-
-      if (!userInput) {
-        setFilteredSuggestions([]);
-        setShowSuggestions(false);
-        return;
+  const getSuggestionsForInput = useCallback(
+    (userInput) => {
+      if (!userInput.trim()) {
+        return moods.slice(0, 50);
       }
-
-      const searchMatches = moods.filter((letter) =>
+      return moods.filter((letter) =>
         letter.toLowerCase().startsWith(userInput.toLowerCase())
       );
-      setFilteredSuggestions(searchMatches);
-      setActiveIndex(-1);
-      setShowDropdown(true);
-      setShowSuggestions(true);
     },
     [moods]
   );
 
+  const onFocus = useCallback(() => {
+    const val = inputValueRef.current;
+    setFilteredSuggestions(getSuggestionsForInput(val));
+    setActiveIndex(-1);
+    setShowDropdown(true);
+    setShowSuggestions(true);
+  }, [getSuggestionsForInput]);
+
+  const onChange = useCallback(
+    (event) => {
+      const userInput = event.target.value;
+      setInputValue(userInput);
+      const matches = getSuggestionsForInput(userInput);
+      setFilteredSuggestions(matches);
+      setActiveIndex(-1);
+      setShowDropdown(true);
+      setShowSuggestions(true);
+    },
+    [getSuggestionsForInput]
+  );
+
   const applySelection = useCallback(
     (value) => {
-      setInputValue(value);
+      setInputValue('');
       setShowSuggestions(false);
+      setShowDropdown(false);
       onSelect?.(value);
     },
     [onSelect]
@@ -60,7 +75,7 @@ export function useMoodAutocomplete(moods, onSelect) {
 
   const onKeyDown = useCallback(
     (event) => {
-      if (!showSuggestions) return;
+      if (!showDropdown) return;
 
       if (event.key === 'ArrowDown') {
         event.preventDefault();
@@ -77,9 +92,12 @@ export function useMoodAutocomplete(moods, onSelect) {
         if (activeIndex >= 0 && filteredSuggestions[activeIndex]) {
           applySelection(filteredSuggestions[activeIndex]);
         }
+      } else if (event.key === 'Escape') {
+        setShowDropdown(false);
+        setShowSuggestions(false);
       }
     },
-    [showSuggestions, filteredSuggestions, activeIndex, applySelection]
+    [showDropdown, filteredSuggestions, activeIndex, applySelection]
   );
 
   const onSuggestionClick = useCallback(
@@ -92,6 +110,7 @@ export function useMoodAutocomplete(moods, onSelect) {
   return {
     inputValue,
     onChange,
+    onFocus,
     onKeyDown,
     wrapperRef,
     filteredSuggestions,

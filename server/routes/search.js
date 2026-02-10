@@ -6,10 +6,10 @@ import { LinkedList } from '../scripts/classes/LinkedList.js';
 
 // Store playlist per-session instead of a single global array
 function getSessionPlaylist(req) {
-    if (!req.session) return null;
-    if (!req.session.currentPlaylist) {
+    if (!req.session.currentPlaylist || req.session.currentPlaylist.length < 1) {
         req.session.currentPlaylist = [];
     }
+
     return req.session.currentPlaylist;
 }
 
@@ -28,20 +28,22 @@ router.get("/url", async (req, res) => {
     if (!accessToken) return res.status(400).json({ error: 'Missing token header' });
 
     const moods = req.headers.moods?.split(",") || [];
+
     if (!moods.length) {
         return res.status(400).json({ error: "No moods provided" });
     }
 
-    const moodsKeyWords = moods.map((m) => `${m}`).join(" ");
+    const moodsKeyWords = moods.map((m) => `${m}`).join();
     const type = req.query.type || "album";
 
     const searchService = new APIService(accessToken);
 
     try {
-        // Fetch a slightly larger set so we can randomize
-        const request = await searchService.request(`v1/search?q=genre=${encodeURIComponent(moodsKeyWords)}&type=${type}&limit=20`, "GET");
+        const request = await searchService.request(
+            `v1/search?q=genre=${encodeURIComponent(moodsKeyWords)}&type=${type}&limit=20`, "GET");
 
         const albums = request.albums?.items || [];
+
         if (!albums.length) {
 
             return res.status(200).json({
@@ -49,26 +51,28 @@ router.get("/url", async (req, res) => {
             });
         }
 
-        const sessionPlaylist = getSessionPlaylist(req);
-        if (!sessionPlaylist) {
-            return res.status(500).json({ error: "Session not available for playlist" });
-        }
+        let sessionPlaylist = getSessionPlaylist(req);
+        let queuedPlaylist = [];
 
         // Shuffle albums and take a subset to enqueue
         const shuffled = [...albums].sort(() => Math.random() - 0.5);
         const toEnqueue = shuffled.slice(0, 10);
 
         toEnqueue.forEach(element => {
-
             if (!sessionPlaylist.find((p) => p.id === element.id)) {
                 sessionPlaylist.push(element);
             }
         });
 
-        console.log("data sent", sessionPlaylist);
+        // Safely attach playlist to the session if session support is enabled
+        /*         if (req.session) {
+                    req.session.currentPlaylist = sessionPlaylist;
+                } */
+        if (sessionPlaylist.length > 1)
+            console.log("current Session playlist", sessionPlaylist.length)
 
         return res.status(200).json({
-            data: "data received, playlist created"
+            message: "playlist created"
         });
     }
     catch (error) {
@@ -81,17 +85,11 @@ router.get("/url", async (req, res) => {
 router.get("/getplaylist", (req, res) => {
 
     const sessionPlaylist = getSessionPlaylist(req);
-    if (!sessionPlaylist) {
-        return res.status(500).json({ error: "Session not available for playlist" });
-    }
 
-    // Return a copy and clear the session playlist
-    const result = [...sessionPlaylist];
-    req.session.currentPlaylist = [];
+    return res.status(200).json({
+        playlist: sessionPlaylist
+    })
 
-    if (result.length === 0) { return res.status(200).json({ playlist: [] }); }
-
-    return res.status(200).json({ playlist: result });
 });
 
 
