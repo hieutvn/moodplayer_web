@@ -3,10 +3,10 @@ import LogOutIcon from "../assets/icons/log_out_btn.svg";
 
 import { useEffect, useState, useRef } from 'react';
 import styles from '../assets/styles/settings.module.css';
-import { usePlayer } from '../contexts.js';
+import { usePlayerContext } from '../contexts.js';
 
 export default function Settings() {
-    const { accessToken } = usePlayer();
+    const { accessToken } = usePlayerContext();
 
     const [loggedIn, setLoggedIn] = useState(false);
     const [profileData, setProfileData] = useState({});

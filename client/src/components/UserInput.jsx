@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import styles from '../assets/styles/userinput.module.css';
 import genres from '../assets/genres.json';
 import SearchIcon from '../assets/icons/search_btn.svg';
-import { usePlayer } from '../contexts.js';
+import { usePlayerContext, usePlaylistContext } from '../contexts.js';
 import { useMoodAutocomplete } from '../hooks/useMoodAutocomplete.js';
 import { submitMoods } from '../hooks/useMoodSubmit.js';
 
+
 export default function UserInput() {
-  const { accessToken } = usePlayer();
+  const { accessToken } = usePlayerContext();
+  const { setPlaylist } = usePlaylistContext();
 
   const [moods, setMoods] = useState([]);
   const [selectedMoods, setSelectedMoods] = useState([]);
@@ -69,8 +71,23 @@ export default function UserInput() {
               style={{ width: '1rem' }}
             />
           </div>
-          <button className={styles.play_btn} onClick={
-            () => submitMoods(selectedMoods, accessToken)}
+          <button
+            className={styles.play_btn}
+            onClick={async () => {
+              // clear any previously‑loaded albums before new search
+              setPlaylist([]);
+              await submitMoods(selectedMoods, accessToken);
+              // optionally fetch the new playlist immediately so the UI updates
+              // you could also let Player's "Add album" button handle this
+              const res = await fetch('http://127.0.0.1:3000/api/search/getplaylist', {
+                method: 'GET',
+                credentials: 'include',
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data.playlist)) setPlaylist(data.playlist);
+              }
+            }}
           >
             Search
           </button>

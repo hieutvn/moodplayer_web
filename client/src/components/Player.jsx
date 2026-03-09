@@ -10,10 +10,10 @@ import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { usePlayer } from "../contexts.js";
+import { usePlayerContext } from "../contexts.js";
 
 export default function Player() {
-  const { currentSong, webplayer, isPlaying, accessToken, deviceId } = usePlayer();
+  const { currentSong, webplayer, isPlaying, accessToken, deviceId } = usePlayerContext();
 
   const [volume, setVolume] = useState(50);
   const [playlist, setPlaylist] = useState([]);
@@ -68,13 +68,15 @@ export default function Player() {
         setPlaylist(prev => {
           const existingIds = new Set(prev.map(p => p.id));
           const newItems = data.playlist.filter(item => !existingIds.has(item.id));
+
           if (newItems.length === 0) return prev;
+
           console.log("received playlist items", newItems);
 
           return [...prev, ...newItems];
         });
       }
-      console.log(playlist)
+      console.log("playlist", playlist)
     }
     catch (error) { console.error(error) }
   }, []);
@@ -88,10 +90,10 @@ export default function Player() {
       });
       if (!res.ok) return;
       const data = await res.json();
-      const incoming = data.playlist || [];
+      const playlist = data.playlist || [];
 
       setPlaylist((prev) => {
-        const map = new Map(prev.map((p) => [p.id, p]));
+        const map = new Set(prev.map((p) => [p.id, p]));
         for (const item of incoming) map.set(item.id, item);
         return Array.from(map.values());
       });

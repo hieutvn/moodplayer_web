@@ -8,7 +8,7 @@ import AlbumSwiper from './AlbumSwiper';
 import Navigation from './Navigation';
 
 import { useEffect, useState, useMemo } from 'react';
-import { PlayerContext } from '../contexts.js';
+import { PlayerContext, PlaylistContext } from '../contexts.js';
 import { useAuth } from '../hooks/useAuth.js';
 
 export default function App() {
@@ -24,8 +24,20 @@ export default function App() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [prevNextSong, setPrevNextSong] = useState({ prev: null, next: null });
     const [deviceId, setDeviceId] = useState(null);
+    const [playlist, setPlaylist] = useState([]);
 
     const { accessTokenVal } = useAuth();
+
+    const playerValue = useMemo(() => ({
+        accessToken,
+        currentSong,
+        currentAlbum,
+        isPlaying,
+        deviceId,
+        webplayer,
+    }), [accessToken, currentSong, currentAlbum, isPlaying, deviceId, webplayer]);
+
+    const playlistValue = useMemo(() => ({ playlist, setPlaylist }), [playlist]);
 
     useEffect(() => {
         if (!accessTokenVal) return;
@@ -110,9 +122,6 @@ export default function App() {
                     setCurrentAlbum(data_currentAlbum);
                     prevNextSong.prev = prevSong;
                     prevNextSong.next = nextSong;
-
-                    console.log("current prev", prevNextSong.prev)
-                    console.log("current next", prevNextSong.next)
                 }
             });
 
@@ -126,36 +135,28 @@ export default function App() {
     }, [accessToken]);
 
 
-    const playerValue = useMemo(() => ({
-        accessToken,
-        currentSong,
-        currentAlbum,
-        isPlaying,
-        deviceId,
-        webplayer,
-    }), [accessToken, currentSong, currentAlbum, isPlaying, deviceId, webplayer]);
-
-
     return (!accessToken || !webplayer) ?
 
         <h1>Player loading...</h1>
         :
         (
             <PlayerContext.Provider value={playerValue}>
-                <div className={styles.app}>
-                    <Navigation />
-                    <main className={styles.main}>
-                        <div className={styles.main_wrapper}>
-                            <div className={styles.main_left}>
-                                <AlbumSwiper />
-                                <Player />
+                <PlaylistContext.Provider value={playlistValue}>
+                    <div className={styles.app}>
+                        <Navigation />
+                        <main className={styles.main}>
+                            <div className={styles.main_wrapper}>
+                                <div className={styles.main_left}>
+                                    <AlbumSwiper />
+                                    <Player />
+                                </div>
+                                <div className={styles.main_right}>
+                                    <AlbumList />
+                                </div>
                             </div>
-                            <div className={styles.main_right}>
-                                <AlbumList />
-                            </div>
-                        </div>
-                    </main>
-                </div>
+                        </main>
+                    </div>
+                </PlaylistContext.Provider>
             </PlayerContext.Provider>
         );
 }

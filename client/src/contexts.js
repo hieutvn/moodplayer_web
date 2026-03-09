@@ -1,17 +1,10 @@
 import { createContext, useContext } from 'react';
 
-/**
- * Single source of truth for player and auth state.
- * Use usePlayer() in components instead of accessing the context directly.
- */
 export const PlayerContext = createContext(null);
+export const PlaylistContext = createContext(null);
 
-/**
- * Hook to access player/auth state. Use this in any component that needs
- * current song, album, token, device, or web player instance.
- * @throws {Error} if used outside PlayerContext.Provider
- */
-export function usePlayer() {
+
+export function usePlayerContext() {
   const value = useContext(PlayerContext);
   if (value == null) {
     throw new Error('usePlayer must be used within a PlayerContext.Provider');
@@ -19,4 +12,10 @@ export function usePlayer() {
   return value;
 }
 
-export default PlayerContext;
+export function usePlaylistContext() {
+  const value = useContext(PlaylistContext);
+  if (value == null) {
+    throw new Error('usePlaylist must be used within a PlaylistContext.Provider');
+  }
+  return value;
+}

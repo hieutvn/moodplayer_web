@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import styles from '../assets/styles/albumlist.module.css';
-import { usePlayer } from '../contexts.js';
+import { usePlayerContext } from '../contexts.js';
 
 export default function AlbumList() {
-    const { currentAlbum, accessToken, currentSong, deviceId } = usePlayer();
+    const { currentAlbum, accessToken, currentSong, deviceId } = usePlayerContext();
 
     const [songs, setSongs] = useState([]);
     const [albumList, setAlbumList] = useState([]);
@@ -41,7 +41,6 @@ export default function AlbumList() {
     const requestAlbum = useCallback(async (currentAlbum) => {
 
         if (!currentAlbum) return;
-        console.log(currentAlbum)
         const albumID = currentAlbum.uri.slice(14); // EXCLUDES "spotify:album:"
 
         try {
@@ -113,8 +112,6 @@ export default function AlbumList() {
         const requestArtist = async () => {
 
             try {
-
-                console.log("id", currentArtistID)
                 const fetchArtist = await fetch(`http://127.0.0.1:3000/api/artist/getartist`, {
 
                     method: 'GET',
