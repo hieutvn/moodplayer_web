@@ -4,6 +4,9 @@ const router = express.Router();
 import { APIService } from '../scripts/classes/APIService.js';
 import { LinkedList } from '../scripts/classes/LinkedList.js';
 
+// load mood/genre list for autocomplete suggestions
+import genres from '../../client/src/assets/genres.json' assert { type: 'json' };
+
 // Store playlist per-session instead of a single global array
 function getSessionPlaylist(req) {
     if (!req.session.currentPlaylist || req.session.currentPlaylist.length < 1) {
@@ -24,14 +27,11 @@ router.get("/url", async (req, res) => {
 
     console.log("on url")
 
+    if (!accessToken) { return res.status(400).json({ error: 'Missing token header' }); }
+    if (!moods) { return res.status(400).json({ error: "No moods provided" }); }
+
     const accessToken = req.headers.token;
-    if (!accessToken) return res.status(400).json({ error: 'Missing token header' });
-
     const moods = req.headers.moods?.split(",") || [];
-
-    if (!moods.length) {
-        return res.status(400).json({ error: "No moods provided" });
-    }
 
     const moodsKeyWords = moods.map((m) => `${m}`).join();
     const type = req.query.type || "album";
@@ -44,13 +44,13 @@ router.get("/url", async (req, res) => {
 
         const albums = request.albums?.items || [];
 
-        if (!albums.length) {
-
+        if (!albums.length < 1) {
             return res.status(200).json({
                 data: "no data"
             });
         }
 
+        /*
         let sessionPlaylist = getSessionPlaylist(req);
         let queuedPlaylist = [];
 
@@ -64,16 +64,18 @@ router.get("/url", async (req, res) => {
             }
         });
 
-        // Safely attach playlist to the session if session support is enabled
         /*         if (req.session) {
                     req.session.currentPlaylist = sessionPlaylist;
-                } */
+                } 
         if (sessionPlaylist.length > 1)
             console.log("current Session playlist", sessionPlaylist.length)
 
         return res.status(200).json({
             message: "playlist created"
         });
+        */
+
+        return request;
     }
     catch (error) {
         console.error("Error building recommendations", error);

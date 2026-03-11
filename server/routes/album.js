@@ -11,6 +11,8 @@ router.get("/getalbum", async (req, res) => {
         const accessToken = req.headers.token;
         const albumID = req.headers.album_id;
 
+        console.log('album.getalbum called with', { accessToken: accessToken ? '***' : null, albumID });
+
         if (!accessToken) return res.status(400).json({ error: 'Missing token header' });
         if (!albumID) return res.status(400).json({ error: 'Missing album_id header' });
 

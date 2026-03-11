@@ -27,7 +27,7 @@ export default function UserInput() {
     });
   }, []);
 
-  const autocomplete = useMoodAutocomplete(moods, onSelectMood);
+  const autocomplete = useMoodAutocomplete(moods, accessToken);
 
   const deleteSelectedMood = (index) => {
     setSelectedMoods((prev) => prev.filter((_, i) => i !== index));
@@ -56,7 +56,7 @@ export default function UserInput() {
           <div className={styles.search_bar_ref}>
             <input
               className={styles.search_bar_input}
-              placeholder="Search for category"
+              placeholder="Search for album or mood"
               type="text"
               value={inputValue}
               onChange={onChange}

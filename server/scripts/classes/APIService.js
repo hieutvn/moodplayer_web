@@ -28,13 +28,22 @@ export class APIService {
                 body: options.body ? JSON.stringify(options.body) : undefined,
             });
 
-            if (!requestTo.ok) { throw new Error(`Response at APIService failed: ${requestTo.status}`); }
+            if (!requestTo.ok) {
+                // capture body text for debugging if available
+                let errBody;
+                try {
+                    errBody = await requestTo.text();
+                } catch (e) {
+                    errBody = '<unable to read body>';
+                }
+                throw new Error(`Response at APIService failed: ${requestTo.status} - ${errBody}`);
+            }
             const data = await requestTo.json();
 
             return data;
         }
         catch (error) {
-            console.error(error);
+            console.error('APIService.request error:', error);
             return error;
         }
     }
