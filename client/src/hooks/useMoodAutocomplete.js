@@ -1,5 +1,6 @@
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from 'react';
+import { usePlayerContext } from '../contexts.js';
 
 /**
  * @param {string[]} moods - List of mood strings to filter against
@@ -12,8 +13,14 @@ export function useMoodAutocomplete(moods, onSelect) {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [suggestAlbums, setSuggestAlbums] = useState([]);
+
   const wrapperRef = useRef(null);
   const inputValueRef = useRef('');
+  const suggestionTimerRef = useRef(null);
+
+  const { accessToken } = usePlayerContext();
+
 
   inputValueRef.current = inputValue;
 
@@ -28,18 +35,20 @@ export function useMoodAutocomplete(moods, onSelect) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  const apiReq = useCallback((userInput) => {
+    apiSuggestion(userInput, accessToken, suggestionTimerRef, setSuggestAlbums);
+  }, [accessToken, suggestionTimerRef, setSuggestAlbums])
+
   const getSuggestionsForInput = useCallback((userInput) => {
     if (!userInput.trim()) {
 
       return moods.slice(0, 50);
     }
 
-
-    autosuggestion(userInput)
     return moods.filter((letter) =>
       letter.toLowerCase().startsWith(userInput.toLowerCase())
     );
-  }, [moods]);
+  }, [moods, accessToken]);
 
   const onFocus = useCallback(() => {
 
@@ -61,15 +70,17 @@ export function useMoodAutocomplete(moods, onSelect) {
     setActiveIndex(-1);
     setShowDropdown(true);
     setShowSuggestions(true);
+
+    apiReq(userInput);
   },
-    [getSuggestionsForInput]
+    [getSuggestionsForInput, apiReq]
   );
 
   const applySelection = useCallback((value) => {
     setInputValue('');
     setShowSuggestions(false);
     setShowDropdown(false);
-    onSelect?.(value);
+    onSelect(value);
 
   }, [onSelect]);
 
@@ -114,24 +125,34 @@ export function useMoodAutocomplete(moods, onSelect) {
     showDropdown,
     activeIndex,
     onSuggestionClick,
+    suggestAlbums
   };
 }
 
 
-async function autosuggestion(userInput) {
 
-  try {
+async function apiSuggestion(userInput, accessToken, timerRef, setSuggestAlbums) {
 
-    const request = await fetch(`http://127.0.0.1:3000/api/search/url?query=${userInput}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-
-    const response = await request.json();
-    console.log(response)
-    return response;
+  if (timerRef.current) {
+    clearTimeout(timerRef.current);
   }
-  catch (error) {
-    console.error(error)
-  }
+
+  timerRef.current = setTimeout(async () => {
+    try {
+      const request = await fetch(`http://127.0.0.1:3000/api/search/url`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'access_token': `${accessToken}`,
+          'moods': `${userInput}`
+        }
+      });
+
+      const response = await request.json();
+      console.log("search resp", response);
+      setSuggestAlbums(response);
+    } catch (error) {
+      console.error(error);
+    }
+  }, 1000);
 }

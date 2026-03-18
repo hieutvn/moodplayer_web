@@ -10,18 +10,64 @@ import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { usePlayerContext } from "../contexts.js";
+import { usePlayerContext, usePlaylistContext } from "../contexts.js";
 
 export default function Player() {
-  const { currentSong, webplayer, isPlaying, accessToken, deviceId } = usePlayerContext();
+  const {
+    currentSong,
+    webplayer,
+    isPlaying,
+    accessToken,
+    deviceId,
+    sessionPlaylist } = usePlayerContext();
 
   const [volume, setVolume] = useState(50);
-  const [playlist, setPlaylist] = useState([]);
-  const [nextAlbum, setNextAlbum] = useState(null);
-  const [prevAlbum, setPrevAlbum] = useState(null);
+  const [playNextAlbum, setPlayNextAlbum] = useState(false);
+  const [playPrevAlbum, setPlayPrevAlbum] = useState(false);
+  const [currentAlbumIdx, setCurrentAlbumIdx] = useState(0);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const lastSeekRef = useRef(0);
+
+  const playAlbum = async (albumId) => {
+    if (!albumId || !deviceId) return;
+
+    try {
+      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          context_uri: `spotify:album:${albumId}`
+        })
+      });
+    } catch (error) { console.error(error) }
+  };
+
+  const prevAlbum = () => {
+    if (currentAlbumIdx > 0) {
+      const newIdx = currentAlbumIdx - 1;
+      setCurrentAlbumIdx(newIdx);
+      playAlbum(sessionPlaylist[newIdx]);
+    }
+  };
+
+  const nextAlbum = () => {
+    if (currentAlbumIdx < sessionPlaylist.length - 1) {
+      const newIdx = currentAlbumIdx + 1;
+      setCurrentAlbumIdx(newIdx);
+      playAlbum(sessionPlaylist[newIdx]);
+    }
+  };
+
+  useEffect(() => {
+    if (sessionPlaylist && sessionPlaylist.length > 0) {
+      setCurrentAlbumIdx(0);
+      playAlbum(sessionPlaylist[0]);
+    }
+  }, [sessionPlaylist]);
 
   const onChangeVolume = (event) => {
     const volumePercentage = Number(event.target.value);
@@ -51,84 +97,6 @@ export default function Player() {
     lastSeekRef.current = Date.now();
     webplayer.seek(ms);
   };
-
-  // ANSCHAUEN
-  const fetchCurrentPlaylist = useCallback(async () => {
-
-    try {
-
-      const request = await fetch("http://127.0.0.1:3000/api/search/getplaylist", {
-        method: "GET",
-        credentials: "include",
-      });
-      const data = await request.json();
-
-      if (Array.isArray(data.playlist) && data.playlist.length > 0) {
-
-        setPlaylist(prev => {
-          const existingIds = new Set(prev.map(p => p.id));
-          const newItems = data.playlist.filter(item => !existingIds.has(item.id));
-
-          if (newItems.length === 0) return prev;
-
-          console.log("received playlist items", newItems);
-
-          return [...prev, ...newItems];
-        });
-      }
-      console.log("playlist", playlist)
-    }
-    catch (error) { console.error(error) }
-  }, []);
-
-  // Fetch playlist and merge into local state (avoid duplicates by id)
-  async function fetchAndSetPlaylist() {
-    try {
-      const res = await fetch("http://127.0.0.1:3000/api/search/getplaylist", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      const playlist = data.playlist || [];
-
-      setPlaylist((prev) => {
-        const map = new Set(prev.map((p) => [p.id, p]));
-        for (const item of incoming) map.set(item.id, item);
-        return Array.from(map.values());
-      });
-      return incoming;
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function playAlbum(albumId) {
-
-    if (!albumId || !deviceId) return;
-
-    try {
-
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-
-        method: "PUT",
-        headers: {
-
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        },
-        body:
-
-          JSON.stringify({
-            context_uri: `spotify:album:${albumId}`
-
-          })
-      });
-    }
-    catch (error) { console.error(error) }
-  }
-
-
 
   useEffect(() => {
     if (!webplayer) return;
@@ -203,8 +171,8 @@ export default function Player() {
             <div className={styles.player_controls}>
               <div className={styles.tooltip}>
                 <span className={styles.tooltip_text}>Previous Album</span>
-                <button className={styles.next_album_btn}>
-                  <NextAlbumIcon className={styles.icon} />
+                <button className={styles.next_album_btn} onClick={prevAlbum}>
+                  <NextAlbumIcon className={styles.icon} style={{ transform: 'rotate(180deg)' }} />
                 </button>
               </div>
 
@@ -235,14 +203,7 @@ export default function Player() {
 
               <div className={styles.tooltip}>
                 <span className={styles.tooltip_text}>Next Album</span>
-                <button className={styles.next_album_btn} onClick={() => {
-
-                  if (!playlist.length) return;
-                  const next = playlist[playlist.length - 1];
-                  playAlbum(next.id);
-                  // remove the last element immutably
-                  setPlaylist(prev => prev.slice(0, -1));
-                }}>
+                <button className={styles.next_album_btn} onClick={nextAlbum}>
                   <NextAlbumIcon className={styles.icon} />
                 </button>
               </div>

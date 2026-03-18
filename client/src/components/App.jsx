@@ -25,6 +25,7 @@ export default function App() {
     const [prevNextSong, setPrevNextSong] = useState({ prev: null, next: null });
     const [deviceId, setDeviceId] = useState(null);
     const [playlist, setPlaylist] = useState([]);
+    const [sessionPlaylist, setSessionPlaylist] = useState([]);
 
     const { accessTokenVal } = useAuth();
 
@@ -35,9 +36,11 @@ export default function App() {
         isPlaying,
         deviceId,
         webplayer,
-    }), [accessToken, currentSong, currentAlbum, isPlaying, deviceId, webplayer]);
+        sessionPlaylist,
+        setSessionPlaylist,
+    }), [accessToken, currentSong, currentAlbum, isPlaying, deviceId, webplayer, sessionPlaylist]);
 
-    const playlistValue = useMemo(() => ({ playlist, setPlaylist }), [playlist]);
+    const playlistValue = useMemo(() => ({ playlist, setPlaylist, sessionPlaylist, setSessionPlaylist }), [playlist, sessionPlaylist]);
 
     useEffect(() => {
         if (!accessTokenVal) return;
@@ -45,6 +48,17 @@ export default function App() {
         setAccessToken(accessTokenVal)
     }, [accessTokenVal]);
 
+    useEffect(() => {
+
+        if (sessionPlaylist) {
+            sessionPlaylist.map((album) => {
+
+                console.log(album);
+            })
+
+            console.log(sessionPlaylist)
+        }
+    }, [sessionPlaylist]);
 
     useEffect(() => {
 
@@ -117,7 +131,8 @@ export default function App() {
                 const prevSong = state.track_window.previous_tracks[0] ? state.track_window.previous_tracks[0].id : null; // --> WHEN NEW PLAYLIST IS LOADED, NO PREV OR NEXT TRACK FOUND = ERROR
                 const nextSong = state.track_window.next_tracks[0] ? state.track_window.next_tracks[0].id : null;
 
-                if (prevSong && nextSong && prevNextSong.prev !== prevSong || prevNextSong.next !== nextSong) { // CHANGES WHEN USER SKIPS TRACK
+                if (prevSong && nextSong && prevNextSong.prev !== prevSong ||
+                    prevNextSong.next !== nextSong) {
 
                     setCurrentAlbum(data_currentAlbum);
                     prevNextSong.prev = prevSong;

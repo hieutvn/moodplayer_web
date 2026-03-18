@@ -8,39 +8,23 @@ export class APIService {
 
     async request(endpoint, method, options = {}) {
         try {
-            let headers = {
-                Authorization: `Bearer ${this.token}`,
-                'Content-Type': 'application/json',
-                ...(options.headers || {})
-            };
 
-            /*             
-            if (options.body && !('Content-Type' in Object.keys(headers).reduce((o, k) =>
-                            (o[k.toLowerCase()] = headers[k], o),
-                            {}))) {
-                            headers['Content-Type'] = 'application/json';
-                        } 
-                            */
-
-            const requestTo = await fetch(`${this.baseURL}${endpoint}`, {
+            const request = await fetch(`${this.baseURL}${endpoint}`, {
                 method: method,
-                headers,
                 body: options.body ? JSON.stringify(options.body) : undefined,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                },
             });
 
-            if (!requestTo.ok) {
-                // capture body text for debugging if available
-                let errBody;
-                try {
-                    errBody = await requestTo.text();
-                } catch (e) {
-                    errBody = '<unable to read body>';
-                }
-                throw new Error(`Response at APIService failed: ${requestTo.status} - ${errBody}`);
+            if (!request.ok) {
+                throw new Error("An error accured in the API Service", request.status)
             }
-            const data = await requestTo.json();
 
-            return data;
+            const response = await request.json();
+            return response;
         }
         catch (error) {
             console.error('APIService.request error:', error);
