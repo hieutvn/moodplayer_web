@@ -1,0 +1,194 @@
+import { useEffect, useState, useCallback } from 'react';
+import styles from '../assets/styles/albumlist.module.css';
+import { usePlayerContext } from '../contexts.js';
+
+export default function AlbumList() {
+    const { currentAlbum, accessToken, currentSong, deviceId } = usePlayerContext();
+
+    const [songs, setSongs] = useState([]);
+    const [albumList, setAlbumList] = useState([]);
+    const [currentArtistID, setCurrentArtistID] = useState(null);
+    const [currentArtistInfos, setCurrentArtistInfos] = useState({ name: null, img: null, followers: null, genres: null });
+
+
+    const formatDuration = (ms) => {
+
+        if (!ms || isNaN(ms)) return "0:00";
+
+        const totalSec = Math.floor(ms / 1000);
+        const min = Math.floor(totalSec / 60);
+        const sec = totalSec % 60;
+
+        return `${min}:${sec.toString().padStart(2, "0")}`;
+    }
+
+    async function playSong(uri) {
+
+        if (!deviceId) return
+
+        await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                uris: [uri]  // z. B. ['spotify:track:4uLU6hMCjMI75M1A2tKUQC']
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+    }
+
+    const requestAlbum = useCallback(async (currentAlbum) => {
+
+        if (!currentAlbum) return;
+        const albumID = currentAlbum.uri.slice(14); // EXCLUDES "spotify:album:"
+
+        try {
+            const fetchAlbum = await fetch(`http://127.0.0.1:3000/api/album/getalbum`, {
+
+                method: 'GET',
+                headers: new Headers({
+                    token: accessToken,
+                    album_id: albumID
+                })
+            });
+
+            /* 
+            options: {
+                headers: {
+                    album_id: albumID 
+                    }
+                    apiClient.request("album", "GET", null) ---> VLLT MÖGLICHKEIT
+                }
+            */
+
+            const album = await fetchAlbum.json();
+
+            /// SET ARTIST ID ///
+            const artistID = album.artists[0].id;
+            if (artistID !== currentArtistID) setCurrentArtistID(artistID)
+            ///
+
+            sessionStorage.setItem(album.name, JSON.stringify({
+                album_name: album.name,
+                album_id: albumID,
+                album_img: album.images[0].url
+            }));
+
+            //return album.tracks.items; // RETURNS ARRAY
+
+
+            album.tracks.items.map((item) => {
+                // CHANGE IN ORDER TO AVOID DUPLICATES!!
+                //console.log(item)
+                setAlbumList(prev => [...prev, {
+                    artist: item.artists.map((artist) => artist.name).join(", "),
+                    name: item.name,
+                    //duration: (((item.duration_ms / 1000) / 60).toFixed(2))
+                    duration: formatDuration(item.duration_ms),
+                    songUri: item.uri
+                }]);
+            })
+
+        }
+        catch (error) { console.error(error) }
+
+    }, [accessToken]);
+
+    useEffect(() => {
+
+        if (!currentAlbum) return;
+        else if (requestAlbum) setAlbumList([]);
+        requestAlbum(currentAlbum);
+
+
+    }, [currentAlbum, requestAlbum]);
+
+
+    useEffect(() => {
+
+        if (!currentArtistID) return;
+
+        const requestArtist = async () => {
+
+            try {
+                const fetchArtist = await fetch(`http://127.0.0.1:3000/api/artist/getartist`, {
+
+                    method: 'GET',
+                    headers: new Headers({
+                        token: accessToken,
+                        artist_id: currentArtistID
+                    })
+                });
+
+                const data = await fetchArtist.json();
+
+                setCurrentArtistInfos({
+                    name: data.name,
+                    img: data.images[0].url, // 640x640 
+                    followers: data.followers.total,
+                    genres: data.genres.map((genre) => genre).join(", ")
+                });
+            }
+            catch (error) { console.error(error) }
+
+        }
+        requestArtist()
+            .catch(console.error);
+
+    }, [currentArtistID]);
+
+
+
+
+    /// ---> TBD. SESSIONSTORAGE UM KÜNSTLER KURZZEITIG ZU SPEICHERN UND ABZURUFEN Z.B. ID
+
+    // <li key={index} className={`styles${ (item.name === currentSong.name) ? song_container.active : song_container}`}> 
+
+    if (!accessToken) { return <h1>Loading..</h1> }
+    else if (albumList) {
+        return (
+            <div className={styles.albumlist}>
+                <div className={styles.artist_container}>
+                    <div className={styles.artist_infos}>
+                        <p className={styles.artist_name}>{currentArtistInfos.name}</p>
+                        <p>{currentArtistInfos.followers ? (currentArtistInfos.followers).toLocaleString('de-DE') : 0} Followers</p>
+                        <hr></hr>
+                        <p>{!currentArtistInfos.genres ? "no genres" : currentArtistInfos.genres}</p>
+                    </div>
+                    <div className={styles.artist_img}>
+                        <img src={currentArtistInfos.img} alt="Artist image" />
+                        <div className={styles.gradient}></div>
+                    </div>
+                </div >
+                <ul className={styles.list_container}>
+                    <span className={styles.list_upper}>
+                        <p style={{ width: "80%" }}>Title</p>
+                        <p style={{ width: "20%" }}>Duration</p>
+                    </span>
+                    <div className={styles.list_container_wrapper}>
+                        <div className={styles.list_container_scrollable}>
+                            {
+                                albumList.map((item, index) => {
+                                    const isActive = currentSong && item.name === currentSong.name;
+
+                                    return (
+                                        <li key={index} className={isActive ? `${styles.song_container} ${styles.active}` : `${styles.song_container} ${styles.none}`}
+                                            onClick={() => playSong(item.songUri)}>
+                                            <div className={styles.song_info}>
+                                                <div className={styles.song_title}>{item.name}</div>
+                                                <div className={styles.song_artist}>{item.artist}</div>
+                                            </div>
+
+                                            <div className={isActive ? `${styles.song_duration} ${styles.active}` : styles.song_duration}>{item.duration}</div>
+                                        </li>
+                                    )
+                                })
+                            }
+                        </div>
+                    </div>
+                </ul>
+            </div >
+        )
+    }
+}

@@ -1,0 +1,327 @@
+@import url("root.css");
+
+.player {
+  width: 100vw;
+  height: 6rem;
+  display: flex;
+  background: var(--mp-black);
+  box-sizing: border-box;
+  padding: 0 3rem 0rem 3rem;
+  position: absolute;
+  z-index: 1000;
+  top: auto;
+  bottom: 0;
+  border: 1px solid var(--mp-lightgrey);
+}
+
+.player_wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Progress bar - range input synced with playback position */
+
+.progress_bar_wrapper {
+  width: 100%;
+  height: 0.15rem;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%) ease-in-out;
+}
+
+.progress_slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  background: var(--mp-lightgrey);
+  border-radius: 0.5rem;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 1000;
+}
+
+.progress_slider:hover::-webkit-slider-thumb {
+  opacity: 1;
+  transform: scale(1.25);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.progress_slider[type="range"]::-webkit-slider-runnable-track {
+  height: 100%;
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    to right,
+    var(--mp-lightgreen) 0 var(--value, 0%),
+    var(--mp-lightgrey) var(--value, 0%) 100%
+  );
+}
+
+.progress_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background: var(--mp-white);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  margin-top: -4px;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.progress_slider::-webkit-slider-thumb:hover {
+  opacity: 1;
+  transform: scale(1.25);
+  transition: transform 0.25s ease-in-out;
+}
+
+.progress_slider[type="range"]::-moz-range-track {
+  height: 0.35rem;
+  border-radius: 0.5rem;
+  background: var(--mp-lightgrey);
+}
+
+.progress_slider::-moz-range-progress {
+  height: 0.35rem;
+  border-radius: 0.5rem;
+  background: var(--mp-lightgreen);
+}
+
+.progress_slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--mp-white);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.progress_slider:hover::-moz-range-thumb {
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+.track_time_wrapper {
+  width: 100%;
+  height: 1rem;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.track_time {
+  color: var(--mp-white);
+  font-family: var(--subheader-font);
+  font-size: var(--text-fontsize_02);
+}
+
+.player_wrapper {
+  width: 100%;
+  height: 50%;
+}
+
+.track_info {
+  width: 100%;
+  height: 30%;
+  padding: 1rem 0;
+  font-size: var(--text-fontsize_02);
+  font-family: var(--text-font);
+  color: var(--mp-white);
+}
+
+.track_artist {
+  width: 90%;
+  padding: 0;
+  margin: 0 0 0.5rem 0;
+}
+
+.track_title {
+  width: 90%;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--header-fontsize);
+  font-family: var(--header-font);
+  color: white;
+  margin: 0;
+}
+
+.player_controls {
+  width: 100%;
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player_controls_wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.volume_slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 8rem;
+  height: 0.35rem;
+  background: var(--mp-lightgrey);
+  border-radius: 0.5rem;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* WebKit / Blink - track bar (--value set from JS for filled portion) */
+.volume_slider[type="range"]::-webkit-slider-runnable-track {
+  height: 0.35rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    to right,
+    var(--mp-lightgreen) 0 var(--value, 0%),
+    var(--mp-lightgrey) var(--value, 0%) 100%
+  );
+}
+
+.volume_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--mp-white);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s ease;
+  margin-top: -4px;
+  /* centers thumb on the track */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Firefox */
+.volume_slider[type="range"]::-moz-range-track {
+  height: 0.35rem;
+  border-radius: 0.5rem;
+  background: var(--mp-lightgrey);
+}
+
+.volume_slider::-moz-range-progress {
+  height: 0.35rem;
+  border-radius: 0.5rem;
+  background: var(--mp-lightgreen);
+}
+
+.volume_slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--mp-white);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.volume_slider::-webkit-slider-thumb:hover {
+  transform: scale(1.5);
+}
+
+.player_controls .tooltip > button,
+.player_library .tooltip > button {
+  background: none;
+  border: none;
+  padding: 1rem;
+  opacity: 0.65;
+}
+
+.player_library {
+  width: 7rem;
+  height: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player_library .tooltip > button:hover,
+.player_controls .tooltip > button:hover {
+  opacity: 1;
+  transition: 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--mp-white);
+  fill: currentColor;
+  /* ensure inline SVG paths inherit color */
+  transition:
+    color 120ms ease,
+    transform 120ms ease;
+}
+
+.tooltip {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.tooltip_text {
+  opacity: 0;
+  position: absolute;
+  z-index: 14;
+  top: -30px;
+  width: 6rem;
+  height: 2rem;
+  font-family: var(--header-font);
+  font-size: var(--text-fontsize);
+  background-color: var(--mp-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1rem;
+  box-shadow: 1px 1px 0 1px rgba(0, 0, 0, 0.5);
+  transition: 0.15s ease-in;
+}
+
+.tooltip_text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--mp-white) transparent transparent transparent;
+  box-shadow: 3px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip:hover .tooltip_text {
+  opacity: 1;
+}

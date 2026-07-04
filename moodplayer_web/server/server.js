@@ -1,0 +1,77 @@
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import dotenv from 'dotenv';
+import session from "express-session";
+
+
+import authRouter from './routes/auth.js';
+import userRouter from './routes/user.js';
+import albumRouter from './routes/album.js';
+import artistRouter from './routes/artist.js';
+import searchRouter from './routes/search.js';
+
+import { authenticateAccess } from "./routes/middleware/token-middleware.js";
+
+
+dotenv.config();
+
+const app = express();
+const corsOptions = {
+
+    origin: "http://127.0.0.1:5173",
+    credentials: true
+}
+const PORT = 3000;
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors(corsOptions));
+app.use(helmet.contentSecurityPolicy({
+
+    directives: {
+
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https://sdk.scdn.co"],
+        frameSrc: ["'self'", "https://sdk.scdn.co"],
+        connectSrc: ["'self'", "https://sdk.scdn.co", "https://api.spotify.com", "https://accounts.spotify.com"]
+    }
+
+}));
+
+app.use(session({
+    name: "sid",
+    secret: CLIENT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.SESSION_COOKIE === 'true',
+        maxAge: (1000 * 60 * 60) * 24
+    }
+}));
+
+///////////////
+/// ROUTES ///
+/////////////
+
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
+app.use("/api/album", albumRouter);
+app.use("/api/artist", artistRouter);
+app.use("/api/search", searchRouter);
+
+app.get("/", (req, res) => {
+
+    res.send("At /");
+});
+
+
+app.listen(PORT, "127.0.0.1", () => {
+
+    console.log("Server listen on PORT ", PORT);
+});

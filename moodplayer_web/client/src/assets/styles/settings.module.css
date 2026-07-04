@@ -1,0 +1,133 @@
+@import url("root.css");
+
+.settings {
+  width: 12rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--mp-lightgrey);
+  border-radius: 2rem;
+}
+
+.profile {
+  width: 11rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  box-sizing: content-box;
+  padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+  transition: 0.25s ease-in;
+}
+
+.active {
+  background-color: var(--mp-lightgrey);
+  border-radius: 1.5rem;
+}
+
+.profile_img {
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--mp-white);
+  border-radius: 2rem;
+  border: 0.2rem solid var(--mp-white);
+  z-index: 12;
+}
+
+.profile_name {
+  width: 100%;
+  font-family: var(--header-font);
+  font-size: var(--text-fontsize);
+  text-align: center;
+  color: var(--mp-white);
+  z-index: 13;
+}
+
+.highlighted {
+  color: var(--mp-lightgreen);
+}
+
+.profile_menu {
+  position: absolute;
+  width: 12rem;
+  height: 8.5rem;
+  top: 1rem;
+  background-color: var(--mp-lightgrey);
+  border-radius: 0 0 1rem 1rem;
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile_menu > p {
+  font-family: var(--header-font);
+  font-size: var(--text-fontsize);
+  color: var(--mp-white);
+  width: 100%;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.profile_menu > p:hover {
+  cursor: pointer;
+  background-color: var(--mp-midgrey);
+  transition: 0.25s ease-in-out;
+}
+
+.added_songs {
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--mp-midgrey);
+  border: 0.2rem solid var(--mp-white);
+  border-radius: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 1rem;
+}
+
+.log_out {
+  width: 5.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  font-family: var(--header-font);
+  font-size: var(--text-fontsize);
+  color: var(--mp-white);
+  padding: 0.25rem;
+  border-radius: 1.5rem;
+}
+
+.profile:hover {
+  cursor: pointer;
+  background-color: var(--mp-lightgrey);
+  border-radius: 1.5rem;
+}
+
+/*
+CLASSES GONE 
+.added_songs:hover {
+
+    cursor: pointer;
+    background-color: var(--mp-lightgrey);
+    transition: .25s ease-in-out;
+    border: 0.2rem solid var(--mp-lightgreen);
+}
+
+.log_out:hover {
+
+    padding: .25rem;
+    cursor: pointer;
+    background-color: var(--mp-lightgrey);
+    transition: .25s ease-in-out;
+} */
