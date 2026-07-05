@@ -9,7 +9,6 @@
   box-sizing: border-box;
   overflow: hidden;
   border: 1px solid var(--mp-white);
-  border-radius: 2rem;
 }
 
 .album_swiper_bg {

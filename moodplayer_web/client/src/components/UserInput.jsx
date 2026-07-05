@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import styles from '../assets/styles/userinput.module.css';
-import genres from '../assets/genres.json';
-import SearchIcon from '../assets/icons/search_btn.svg';
-import { usePlayerContext, usePlaylistContext } from '../contexts.js';
-import { useMoodAutocomplete } from '../hooks/useMoodAutocomplete.js';
-import { submitMoods } from '../hooks/useMoodSubmit.js';
-
+import { useState, useEffect, useCallback } from "react";
+import styles from "../assets/styles/userinput.module.css";
+import genres from "../assets/genres.json";
+import SearchIcon from "../assets/icons/search_btn.svg";
+import { usePlayerContext, usePlaylistContext } from "../contexts.js";
+import { useMoodAutocomplete } from "../hooks/useMoodAutocomplete.js";
+import { submitMoods } from "../hooks/useMoodSubmit.js";
 
 export default function UserInput() {
   const { accessToken } = usePlayerContext();
@@ -14,7 +13,11 @@ export default function UserInput() {
   const [moods, setMoods] = useState([]);
   const [selectedMoods, setSelectedMoods] = useState([]);
   const [fetchedAlbumSuggestions, setFetchedAlbumSuggestions] = useState([]);
-  const [overlay, setOverlay] = useState({ show: false, message: '', color: '' });
+  const [overlay, setOverlay] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
 
   useEffect(() => {
     if (genres?.moods && Array.isArray(genres.moods)) {
@@ -39,14 +42,22 @@ export default function UserInput() {
     try {
       const submitRequest = await submitMoods(selectedMoods, accessToken);
       if (!submitRequest) {
-        setOverlay({ show: true, message: 'sending moods failed', color: 'red' });
+        setOverlay({
+          show: true,
+          message: "sending moods failed",
+          color: "red",
+        });
       }
-      setOverlay({ show: true, message: 'sending moods successfully', color: 'green' });
-      setSessionPlaylist(submitRequest.data)
+      setOverlay({
+        show: true,
+        message: "sending moods successfully",
+        color: "green",
+      });
+      setSessionPlaylist(submitRequest.data);
     } catch (error) {
-      setOverlay({ show: true, message: 'sending moods failed', color: 'red' });
+      setOverlay({ show: true, message: "sending moods failed", color: "red" });
     }
-    setTimeout(() => setOverlay({ show: false, message: '', color: '' }), 3000);
+    setTimeout(() => setOverlay({ show: false, message: "", color: "" }), 3000);
   };
 
   const {
@@ -59,21 +70,19 @@ export default function UserInput() {
     showDropdown,
     activeIndex,
     onSuggestionClick,
-    suggestAlbums
+    suggestAlbums,
   } = autocomplete;
-
 
   useEffect(() => {
     if (inputValue.trim() && suggestAlbums.albums) {
       const newAlbums = suggestAlbums.albums.map((album) => ({
         name: album.name,
         artist: album.artists.map((a) => a.name),
-        img: album.images?.[2].url || "#"
+        img: album.images?.[2].url || "#",
       }));
       setFetchedAlbumSuggestions([...newAlbums]);
     }
   }, [suggestAlbums, inputValue]);
-
 
   if (!moods.length) {
     return <h1>Loading moods.</h1>;
@@ -92,64 +101,61 @@ export default function UserInput() {
               onChange={onChange}
               onFocus={onFocus}
               onKeyDown={onKeyDown}
-
             />
           </div>
-          <div className={styles.search_btn}>
-            <SearchIcon
-              className={styles.search_btn_icon}
-              style={{ width: '1rem' }}
-            />
-          </div>
-          <button
-            className={styles.play_btn}
-            onClick={handleSearch}
-          >
-            Search
-          </button>
-          <div className={styles.tag_count}>
-            <span>{selectedMoods.length}/4</span>
+          <div className={styles.search_btn} onClick={handleSearch}>
+            <div className={styles.search_btn}>
+              <SearchIcon
+                className={styles.search_btn_icon}
+                style={{ width: "1rem" }}
+              />
+            </div>
           </div>
         </div>
 
         {showDropdown && (
           <div className={styles.dropdown}>
             <div className={styles.dropdown_suggestions}>
-              {
-                (filteredSuggestions.length > 0 || fetchedAlbumSuggestions.length > 0) ? (
-                  <>
-                    {filteredSuggestions.map((suggestion, index) => (
-                      <div
-                        key={`${suggestion}-${index}`}
-                        className={
-                          index !== activeIndex
-                            ? styles.autocomplete_item
-                            : styles.autocomplete_active
-                        }
-                        onClick={() => onSuggestionClick(suggestion)}
-                      >
-                        <p>
-                          <strong>
-                            {suggestion.substring(0, inputValue.length)}
-                          </strong>
-                          {suggestion.substring(inputValue.length)}
-                        </p>
-                      </div>
-                    ))}
-                    {fetchedAlbumSuggestions.map((album, index) => (
-                      <div key={`album-${index}`} className={styles.autocomplete_item}
-                        onClick={() => onSuggestionClick(album.name)}>
-                        <img className={styles.autocomplete_item_img} src={album.img} />
-                        <p>{album.name} by {album.artist.join(', ')}</p>
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  <div className={styles.dropdown_empty}>
-                    No matching moods
-                  </div>
-                )
-              }
+              {filteredSuggestions.length > 0 ||
+              fetchedAlbumSuggestions.length > 0 ? (
+                <>
+                  {filteredSuggestions.map((suggestion, index) => (
+                    <div
+                      key={`${suggestion}-${index}`}
+                      className={
+                        index !== activeIndex
+                          ? styles.autocomplete_item
+                          : styles.autocomplete_active
+                      }
+                      onClick={() => onSuggestionClick(suggestion)}
+                    >
+                      <p>
+                        <strong>
+                          {suggestion.substring(0, inputValue.length)}
+                        </strong>
+                        {suggestion.substring(inputValue.length)}
+                      </p>
+                    </div>
+                  ))}
+                  {fetchedAlbumSuggestions.map((album, index) => (
+                    <div
+                      key={`album-${index}`}
+                      className={styles.autocomplete_item}
+                      onClick={() => onSuggestionClick(album.name)}
+                    >
+                      <img
+                        className={styles.autocomplete_item_img}
+                        src={album.img}
+                      />
+                      <p>
+                        {album.name} by {album.artist.join(", ")}
+                      </p>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div className={styles.dropdown_empty}>No matching moods</div>
+              )}
             </div>
           </div>
         )}
