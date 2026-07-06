@@ -139,125 +139,125 @@ export default function Player() {
             {!currentSong ? "-" : currentSong.name}
           </p>
         </div>
-        <div className={styles.progress_bar_wrapper}>
-          <input
-            type="range"
-            className={styles.progress_slider}
-            min={0}
-            max={duration || 1}
-            value={position}
-            onChange={onSeek}
-            style={{ "--value": `${progressPercent}%` }}
-          />
-        </div>
+        <div className={styles.player_controls_container}>
+          <div className={styles.progress_bar_wrapper}>
+            <input
+              type="range"
+              className={styles.progress_slider}
+              min={0}
+              max={duration || 1}
+              value={position}
+              onChange={onSeek}
+              style={{ "--value": `${progressPercent}%` }}
+            />
+          </div>
 
-        <div className={styles.track_time_wrapper}>
-          <p className={styles.track_time}>{formatTime(position)}</p>
-          <p className={styles.track_time}>{formatTime(duration)}</p>
-        </div>
+          <div className={styles.track_time_wrapper}>
+            <p className={styles.track_time}>{formatTime(position)}</p>
+            <p className={styles.track_time}>{formatTime(duration)}</p>
+          </div>
 
-        <div className={styles.player_wrapper}>
-          <div className={styles.player_controls_wrapper}>
-            <div className={styles.volume}>
-              <VolumeIcon className={styles.icon} />
-
-              <input
-                type="range"
-                className={styles.volume_slider}
-                min="0"
-                max="100"
-                onChange={onChangeVolume}
-                value={volume}
-                style={{ "--value": `${volume}%` }}
-              />
-            </div>
-
-            <div className={styles.player_controls}>
-              <div className={styles.tooltip}>
-                <span className={styles.tooltip_text}>Previous Album</span>
-                <button className={styles.next_album_btn} onClick={prevAlbum}>
-                  <NextAlbumIcon
-                    className={styles.icon}
-                    style={{ transform: "rotate(180deg)" }}
-                  />
-                </button>
-              </div>
-
-              <div className={styles.tooltip}>
-                <span className={styles.tooltip_text}>Previous Song</span>
-                <button
-                  className={styles.prev_song_btn}
-                  onClick={() => {
-                    webplayer.previousTrack();
-                  }}
-                >
-                  <NextSongIcon
-                    className={styles.icon}
-                    style={{ transform: "rotate(180deg)" }}
-                  />
-                </button>
-              </div>
-
-              <div className={styles.tooltip}>
-                <span className={styles.tooltip_text}>
-                  {isPlaying ? "Play" : "Stop"}
-                </span>
-                <button
-                  className={styles.play_stop_btn}
-                  onClick={() => {
-                    webplayer.togglePlay();
-                  }}
-                >
-                  {isPlaying ? (
-                    <PlayIcon
+          <div className={styles.player_controls_panel}>
+            <div className={styles.player_controls_wrapper}>
+              <div className={styles.player_controls}>
+                <div className={styles.tooltip}>
+                  <span className={styles.tooltip_text}>Previous Album</span>
+                  <button className={styles.next_album_btn} onClick={prevAlbum}>
+                    <NextAlbumIcon
                       className={styles.icon}
-                      style={{ width: "2.25rem", height: "2.25rem" }}
+                      style={{ transform: "rotate(180deg)" }}
                     />
-                  ) : (
-                    <StopIcon
+                  </button>
+                </div>
+
+                <div className={styles.tooltip}>
+                  <span className={styles.tooltip_text}>Previous Song</span>
+                  <button
+                    className={styles.prev_song_btn}
+                    onClick={() => {
+                      webplayer.previousTrack();
+                    }}
+                  >
+                    <NextSongIcon
                       className={styles.icon}
-                      style={{ width: "2.25rem", height: "2.25rem" }}
+                      style={{ transform: "rotate(180deg)" }}
                     />
-                  )}
-                </button>
-              </div>
+                  </button>
+                </div>
 
-              <div className={styles.tooltip}>
-                <span className={styles.tooltip_text}>Next Song</span>
-                <button
-                  className={styles.next_song_btn}
-                  onClick={() => {
-                    webplayer.nextTrack();
-                  }}
-                >
-                  <NextSongIcon className={styles.icon} />
-                </button>
-              </div>
+                <div className={styles.tooltip}>
+                  <span className={styles.tooltip_text}>
+                    {isPlaying ? "Play" : "Stop"}
+                  </span>
+                  <button
+                    className={styles.play_stop_btn}
+                    onClick={() => {
+                      webplayer.togglePlay();
+                    }}
+                  >
+                    {isPlaying ? (
+                      <PlayIcon
+                        className={styles.icon}
+                        style={{ width: "2.25rem", height: "2.25rem" }}
+                      />
+                    ) : (
+                      <StopIcon
+                        className={styles.icon}
+                        style={{ width: "2.25rem", height: "2.25rem" }}
+                      />
+                    )}
+                  </button>
+                </div>
 
-              <div className={styles.tooltip}>
-                <span className={styles.tooltip_text}>Next Album</span>
-                <button className={styles.next_album_btn} onClick={nextAlbum}>
-                  <NextAlbumIcon className={styles.icon} />
-                </button>
-              </div>
-            </div>
+                <div className={styles.tooltip}>
+                  <span className={styles.tooltip_text}>Next Song</span>
+                  <button
+                    className={styles.next_song_btn}
+                    onClick={() => {
+                      webplayer.nextTrack();
+                    }}
+                  >
+                    <NextSongIcon className={styles.icon} />
+                  </button>
+                </div>
 
-            <div className={styles.player_library}>
-              <div className={styles.tooltip}>
-                <span className={styles.tooltip_text}>Add Song</span>
-                <button className={styles.add_song_btn}>
-                  <AddSongIcon className={styles.icon} />
-                </button>
+                <div className={styles.tooltip}>
+                  <span className={styles.tooltip_text}>Next Album</span>
+                  <button className={styles.next_album_btn} onClick={nextAlbum}>
+                    <NextAlbumIcon className={styles.icon} />
+                  </button>
+                </div>
               </div>
+              <div className={styles.player_library}>
+                <div className={styles.volume}>
+                  <VolumeIcon className={styles.icon} />
 
-              <div className={styles.tooltip}>
-                <span className={styles.tooltip_text}>Add Album</span>
-                <button
-                  className={styles.add_album_btn}
-                  onClick={() => fetchCurrentPlaylist()}
-                >
-                  <AddAlbumIcon className={styles.icon} />
-                </button>
+                  <input
+                    type="range"
+                    className={styles.volume_slider}
+                    min="0"
+                    max="100"
+                    onChange={onChangeVolume}
+                    value={volume}
+                    style={{ "--value": `${volume}%` }}
+                  />
+                </div>
+                <div className={styles.tooltip}>
+                  <span className={styles.tooltip_text}>Add Song</span>
+                  <button className={styles.add_song_btn}>
+                    <AddSongIcon className={styles.icon} />
+                  </button>
+                </div>
+
+                <div className={styles.tooltip}>
+                  <span className={styles.tooltip_text}>Add Album</span>
+                  <button
+                    className={styles.add_album_btn}
+                    onClick={() => fetchCurrentPlaylist()}
+                  >
+                    <AddAlbumIcon className={styles.icon} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

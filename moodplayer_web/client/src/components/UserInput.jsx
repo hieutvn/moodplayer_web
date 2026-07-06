@@ -103,13 +103,11 @@ export default function UserInput() {
               onKeyDown={onKeyDown}
             />
           </div>
-          <div className={styles.search_btn} onClick={handleSearch}>
-            <div className={styles.search_btn}>
-              <SearchIcon
-                className={styles.search_btn_icon}
-                style={{ width: "1rem" }}
-              />
-            </div>
+          <div className={styles.search_btn}>
+            <SearchIcon
+              className={styles.search_btn_icon}
+              style={{ width: "1rem" }}
+            />
           </div>
         </div>
 
