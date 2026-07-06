@@ -176,7 +176,7 @@ export default function App() {
             <div className={styles.main_wrapper}>
               <AlbumList />
               <AlbumSwiper />
-              <SearchHistory />
+              <UserInput />
             </div>
             <div className={styles.main_btm}>
               <Player />
