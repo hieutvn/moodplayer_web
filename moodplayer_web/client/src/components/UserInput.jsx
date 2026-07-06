@@ -153,11 +153,14 @@ export default function UserInput() {
               type="button"
               onClick={() => setActiveButton("history")}
             >
-              <HistoryIcon className={styles.icon} />
+              <HistoryIcon className={styles.icon} style={{ fill: "red" }} />
             </button>
           </div>
         </div>
 
+        <hr
+          style={{ width: "100%", border: "1px solid #ccc", margin: "10px 0" }}
+        />
         {overlay.show && (
           <div className={styles.overlay} style={{ color: overlay.color }}>
             {overlay.message}
@@ -165,7 +168,8 @@ export default function UserInput() {
         )}
       </div>
 
-      {showDropdown && (
+      <p style={{ color: "white" }}>Search</p>
+      {showDropdown && activeButton === "search" && (
         <div className={styles.dropdown}>
           <div className={styles.dropdown_suggestions}>
             {filteredSuggestions.length > 0 ||

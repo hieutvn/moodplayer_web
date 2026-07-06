@@ -24,7 +24,6 @@
 
   box-sizing: border-box;
   position: relative;
-  border: 1px solid green;
 }
 
 .search_wrapper > p {

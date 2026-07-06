@@ -1,97 +1,119 @@
-import AddedIcon from "../assets/icons/add_album_btn.svg";
-import LogOutIcon from "../assets/icons/log_out_btn.svg";
-
-import { useEffect, useState, useRef } from 'react';
-import styles from '../assets/styles/settings.module.css';
-import { usePlayerContext } from '../contexts.js';
+import { useEffect, useState, useRef } from "react";
+import styles from "../assets/styles/settings.module.css";
+import { usePlayerContext } from "../contexts.js";
 
 export default function Settings() {
-    const { accessToken } = usePlayerContext();
+  const { accessToken } = usePlayerContext();
 
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [profileData, setProfileData] = useState({});
-    const [toggle, setToggle] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: "Profile",
+    img: "",
+  });
+  const [toggle, setToggle] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-    const menuRef = useRef(null);
+  const menuRef = useRef(null);
 
-    useEffect(() => {
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setToggle(false);
+      }
+    }
 
-        function handleClickOutside(event) {
+    document.addEventListener("click", handleClickOutside);
 
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setToggle(false);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken) {
+      setProfileData({ name: "Profile", img: "" });
+      setIsLoaded(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    const getProfile = async () => {
+      try {
+        const request = await fetch("http://127.0.0.1:3000/api/user/getuser", {
+          method: "GET",
+          headers: {
+            token: accessToken,
+          },
+        });
+        const data = await request.json();
+
+        if (!isMounted) return;
+
+        setProfileData({
+          email: data.email || "",
+          name: data.display_name || data.id || "Profile",
+          img: data.images?.[1]?.url || data.images?.[0]?.url || "",
+        });
+        setIsLoaded(true);
+      } catch (error) {
+        console.error(error);
+        if (isMounted) {
+          setProfileData({ name: "Profile", img: "" });
+          setIsLoaded(true);
+        }
+      }
+    };
+
+    getProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accessToken]);
+
+  function toggleMenu() {
+    setToggle((prev) => !prev);
+  }
+
+  return (
+    <div className={styles.settings} ref={menuRef}>
+      <div className={styles.profile_info}>
+        <button
+          type="button"
+          className={
+            toggle ? `${styles.profile} ${styles.active}` : styles.profile
+          }
+          onClick={toggleMenu}
+          aria-expanded={toggle}
+        >
+          <span
+            className={
+              toggle
+                ? `${styles.profile_name} ${styles.highlighted}`
+                : styles.profile_name
             }
-        }
-        document.addEventListener("click", handleClickOutside);
+          >
+            {isLoaded ? profileData.name : "Profile"}
+          </span>
+          {profileData.img ? (
+            <img
+              className={styles.profile_img}
+              src={profileData.img}
+              alt="Profile"
+            />
+          ) : (
+            <div className={styles.profile_img} aria-hidden="true" />
+          )}
+        </button>
+      </div>
 
-        // UNMOUNT
-        return () => { document.removeEventListener("click", handleClickOutside); }
-    }, []);
-
-    function clickProfile() {
-
-        setToggle(!toggle)
-
-        if (toggle) {
-
-            console.log("toggling", toggle)
-        }
-    }
-
-    useEffect(() => {
-
-        if (!accessToken) { setLoggedIn(false); }
-        setLoggedIn(true);
-
-    }, [accessToken]);
-
-    useEffect(() => {
-
-        const getProfile = async () => {
-
-            if (!accessToken) return;
-
-            const request = await fetch("http://127.0.0.1:3000/api/user/getuser", {
-                method: 'GET',
-                headers: new Headers({
-                    token: accessToken,
-                })
-            });
-            const data = await request.json();
-            console.log("settings", data)
-            setProfileData({
-                email: data.email,
-                name: data.display_name,
-                img: data.images[1].url,
-
-
-            });
-        }
-
-        getProfile()
-            .catch(console.error)
-
-    }, [loggedIn, accessToken]);
-
-    if (!loggedIn) { return (<h3>Loading...</h3>) }
-    else if (loggedIn) {
-        return (
-
-            <div className={styles.settings}>
-                <div className={toggle ? `${styles.profile} ${styles.active}` : styles.profile} onClick={clickProfile}>
-                    <p className={toggle ? `${styles.profile_name} ${styles.highlighted}` : styles.profile_name}>{!profileData.name ? "no name" : profileData.name}</p>
-                    <img className={styles.profile_img} src={loggedIn ? profileData.img : "#"} alt="Profile" />
-
-                    {toggle && (
-                        <div className={styles.profile_menu}>
-                            <p>Added Songs</p>
-                            <p>Settings</p>
-                            <p>Logout</p>
-                        </div>
-                    )}
-                </div>
-
-            </div>
-        )
-    }
+      {toggle && (
+        <div className={styles.profile_menu}>
+          <button type="button">Added Songs</button>
+          <button type="button">Settings</button>
+          <button type="button">Logout</button>
+        </div>
+      )}
+    </div>
+  );
 }

@@ -1,47 +1,68 @@
 @import url("root.css");
 
 .settings {
-  width: 10rem;
-  height: 2.25rem;
+  position: relative;
+  width: 12rem;
+  min-height: 2.5rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: var(--mp-lightgrey);
-  border-radius: 2rem;
+  z-index: 1000;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.profile_info {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 1001;
 }
 
 .profile {
-  width: 11rem;
-  height: 2rem;
+  width: 100%;
+  min-height: 2.5rem;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
-  box-sizing: content-box;
-  padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  box-sizing: border-box;
   transition: 0.25s ease-in;
+  border-radius: 1.5rem;
+  background-color: var(--mp-black);
+  cursor: pointer;
+  border: 1px solid var(--mp-white);
+  margin-left: auto;
 }
 
 .active {
-  background-color: var(--mp-lightgrey);
-  border-radius: 1.5rem;
+  border-radius: 1.5rem 1.5rem 0 0;
 }
 
 .profile_img {
   width: 2rem;
   height: 2rem;
+  flex-shrink: 0;
   background-color: var(--mp-white);
-  border-radius: 2rem;
+  border-radius: 50%;
   border: 0.2rem solid var(--mp-white);
-  z-index: 12;
+  object-fit: cover;
+  margin-left: auto;
 }
 
 .profile_name {
-  width: 100%;
+  flex: 1;
   font-family: var(--header-font);
-  font-size: var(--text-fontsize);
+  font-size: var(--text-fontsize_02);
   text-align: center;
   color: var(--mp-white);
-  z-index: 13;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .highlighted {
@@ -50,84 +71,35 @@
 
 .profile_menu {
   position: absolute;
-  width: 12rem;
-  height: 8.5rem;
-  top: 1rem;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  width: 100%;
   background-color: var(--mp-lightgrey);
   border-radius: 0 0 1rem 1rem;
-  z-index: 11;
+  border: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  z-index: 1002;
+  box-shadow: 0 0.35rem 0.75rem rgba(0, 0, 0, 0.2);
 }
 
-.profile_menu > p {
+.profile_menu > button {
+  border: none;
+  background: transparent;
+  color: var(--mp-white);
   font-family: var(--header-font);
   font-size: var(--text-fontsize);
-  color: var(--mp-white);
-  width: 100%;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
+  padding: 0.55rem 0.75rem;
+  text-align: center;
+  cursor: pointer;
 }
 
-.profile_menu > p:hover {
-  cursor: pointer;
+.profile_menu > button:hover {
   background-color: var(--mp-midgrey);
   transition: 0.25s ease-in-out;
 }
 
-.added_songs {
-  width: 2rem;
-  height: 2rem;
-  background-color: var(--mp-midgrey);
-  border: 0.2rem solid var(--mp-white);
-  border-radius: 60%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon {
-  width: 1rem;
-}
-
-.log_out {
-  width: 5.25rem;
-  height: 2.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  font-family: var(--header-font);
-  font-size: var(--text-fontsize);
-  color: var(--mp-white);
-  padding: 0.25rem;
-  border-radius: 1.5rem;
-}
-
 .profile:hover {
-  cursor: pointer;
-  background-color: var(--mp-lightgrey);
-  border-radius: 1.5rem;
+  background-color: var(--mp-midgrey);
 }
-
-/*
-CLASSES GONE 
-.added_songs:hover {
-
-    cursor: pointer;
-    background-color: var(--mp-lightgrey);
-    transition: .25s ease-in-out;
-    border: 0.2rem solid var(--mp-lightgreen);
-}
-
-.log_out:hover {
-
-    padding: .25rem;
-    cursor: pointer;
-    background-color: var(--mp-lightgrey);
-    transition: .25s ease-in-out;
-} */
