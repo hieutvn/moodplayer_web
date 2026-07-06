@@ -7,6 +7,8 @@ import { usePlayerContext, usePlaylistContext } from "../contexts.js";
 import { useMoodAutocomplete } from "../hooks/useMoodAutocomplete.js";
 import { submitMoods } from "../hooks/useMoodSubmit.js";
 
+//KOMMENTAR
+
 export default function UserInput() {
   const { accessToken } = usePlayerContext();
   const { sessionPlaylist, setSessionPlaylist } = usePlaylistContext();
