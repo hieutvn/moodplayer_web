@@ -1,5 +1,7 @@
 import styles from "../assets/styles/searchhistory.module.css";
 
+import { useState } from "react";
+
 import UserInput from "./UserInput.jsx";
 
 export default function SearchHistory() {
