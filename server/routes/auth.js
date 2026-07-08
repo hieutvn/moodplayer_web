@@ -72,13 +72,13 @@ router.get('/callback', async (req, res, next) => {
             }, {
 
                 httpOnly: true,
-                secure: false, // aufg. localhost
+                secure: false,
                 sameSite: "strict",
                 maxAge: expires_in * 1000
             })
             .cookie("refresh_token", refresh_token, {
                 httpOnly: true,
-                secure: false, // aufg. localhost
+                secure: false, 
                 sameSite: "strict",
                 path: "/api/auth/refreshtoken", // must match route so browser sends cookie
                 maxAge: 7 * 24 * 60 * 60 * 1000

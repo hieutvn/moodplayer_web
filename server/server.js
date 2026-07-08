@@ -18,17 +18,14 @@ import { authenticateAccess } from "./routes/middleware/token-middleware.js";
 dotenv.config();
 
 const app = express();
-
 const corsOptions = {
 
     origin: "http://127.0.0.1:5173",
     credentials: true
 }
-
-
 const PORT = 3000;
-
-
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -47,7 +44,7 @@ app.use(helmet.contentSecurityPolicy({
 
 app.use(session({
     name: "sid",
-    secret: process.env.SESSION_SECRET,
+    secret: CLIENT_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
