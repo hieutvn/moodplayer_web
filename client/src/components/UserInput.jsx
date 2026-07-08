@@ -63,10 +63,10 @@ export default function UserInput() {
         desc_tags.concat(tag);
       });
       if (typeof window !== "undefined") {
-        /* window.sessionStorage.setItem(
+        window.sessionStorage.setItem(
           `moodplayer_playlist ${desc_tags}`,
           JSON.stringify(playlist),
-        ); */
+        );
       }
     } catch (error) {
       showOverlayMessage("sending moods failed", "red");

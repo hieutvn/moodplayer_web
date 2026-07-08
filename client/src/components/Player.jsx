@@ -32,6 +32,7 @@ export default function Player() {
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const lastSeekRef = useRef(0);
+  const [playlistIndex, setPlaylistIndex] = useState(0);
 
   const playAlbum = async (albumId) => {
     if (!albumId || !deviceId) return;
@@ -55,45 +56,23 @@ export default function Player() {
     }
   };
 
-  const getPlaylist = async () => {
-    try {
-      await fetch(
-        `tbd`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            context_uri: `spotify:album:${albumId}`,
-          }),
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getActivePlaylist = () => {
-    return playlistRef.current?.length ? playlistRef.current : sessionPlaylist;
-  };
+  const playSong = useMemo(() => {
+    playAlbum(playlistRef.current[playlistIndex]);
+  }, [playlistIndex]);
 
   const prevAlbum = () => {
-    const activePlaylist = getActivePlaylist();
     if (currentAlbumIdx > 0) {
       const newIdx = currentAlbumIdx - 1;
       setCurrentAlbumIdx(newIdx);
-      playAlbum(activePlaylist[newIdx]);
+      playAlbum(sessionPlaylist[newIdx]);
     }
   };
 
   const nextAlbum = () => {
-    const activePlaylist = getActivePlaylist();
-    if (currentAlbumIdx < activePlaylist.length - 1) {
+    if (currentAlbumIdx < sessionPlaylist.length - 1) {
       const newIdx = currentAlbumIdx + 1;
       setCurrentAlbumIdx(newIdx);
-      playAlbum(activePlaylist[newIdx]);
+      playAlbum(sessionPlaylist[newIdx]);
     }
   };
 
@@ -242,6 +221,7 @@ export default function Player() {
                   <button
                     className={styles.next_song_btn}
                     onClick={() => {
+                      setPlaylistIndex((prev) => prev++);
                       webplayer.nextTrack();
                     }}
                   >

@@ -11,6 +11,8 @@ import userRouter from './routes/user.js';
 import albumRouter from './routes/album.js';
 import artistRouter from './routes/artist.js';
 import searchRouter from './routes/search.js';
+import rankingRouter from './routes/ranking.js';
+
 
 import { authenticateAccess } from "./routes/middleware/token-middleware.js";
 
@@ -64,6 +66,8 @@ app.use("/api/user", userRouter);
 app.use("/api/album", albumRouter);
 app.use("/api/artist", artistRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/ranking", rankingRouter);
+
 
 app.get("/", (req, res) => {
 
