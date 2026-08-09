@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { usePKCE } from "../hooks/usePKCE";
-
+import styles from "../assets/styles/login.module.css";
 
 export default function Login() {
 
@@ -20,8 +19,11 @@ export default function Login() {
     }
 
     return (
-
-        <button id="connect_with_spotify_btn" onClick={loginWithSpotify}>Connect with Spotify</button>
-
+        <main className={styles.login_container}>
+            <h1 className={styles.title}>moodply.</h1>
+            <button className={styles.connect_with_spotify_btn} onClick={loginWithSpotify}>
+                Connect with Spotify
+            </button>
+        </main>
     )
 }

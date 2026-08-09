@@ -78,13 +78,13 @@ router.get('/callback', async (req, res, next) => {
             })
             .cookie("refresh_token", refresh_token, {
                 httpOnly: true,
-                secure: false, 
+                secure: false,
                 sameSite: "strict",
                 path: "/api/auth/refreshtoken", // must match route so browser sends cookie
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
 
-        res.status(200).redirect("http://127.0.0.1:5173/dashboard");
+        res.status(200).redirect("http://127.0.0.1:5173/dashboard?success=true");
     }
     catch (error) { next(error) }
 });

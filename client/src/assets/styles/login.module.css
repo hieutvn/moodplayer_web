@@ -1,0 +1,40 @@
+@import url("root.css");
+
+.login_container {
+
+    width: 100vw;
+    height: 100vh;
+    display: flex; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    
+    font-family: var(--header-font);
+    color: var(--mp-white, #fff);
+    font-size: clamp(6rem, 20vw, 15rem);
+    margin-bottom: 5%;
+}
+
+.connect_with_spotify_btn {
+    
+    width: 25rem;
+    height: 5rem;
+    color: var(--mp-white);
+    font-family: var(--header-font);
+    font-size: var(--header-fontsize_03);
+    background-color: transparent;
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    border: 1px solid var(--mp-white);
+    cursor: pointer;
+}
+
+.connect_with_spotify_btn:hover { 
+
+    background-color: var(--mp-lightgreen);
+    border: none;
+    transition: all 0.6s ease-in-out;
+}

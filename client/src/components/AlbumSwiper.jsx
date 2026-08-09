@@ -11,7 +11,7 @@ export default function AlbumSwiper() {
     function handleScroll(e) {
 
         if (e.deltaY > 0) {
-            console.log("TRUE")
+            console.log(typeof e)
 
         } else if (e.deltaY < 0) {
             console.log("FALSE")

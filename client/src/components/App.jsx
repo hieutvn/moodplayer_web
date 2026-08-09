@@ -145,7 +145,7 @@ export default function App() {
       webplayer.connect().then((success) => {
         success
           ? console.log(
-              "The Web Playback SDK successfully connected to Spotify!",
+              "The Web Playback SDK successfully connected to Spotify!"
             )
           : console.error("Error");
       });
