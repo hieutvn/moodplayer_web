@@ -64,7 +64,6 @@ router.get('/callback', async (req, res, next) => {
 
         const { access_token, refresh_token, expires_in } = await generateAccessToken(authCode);
 
-
         res.
             cookie("access_token", {
                 access_token: access_token,
@@ -88,8 +87,6 @@ router.get('/callback', async (req, res, next) => {
     }
     catch (error) { next(error) }
 });
-
-
 
 router.get("/gettoken", (req, res, next) => {
 

@@ -5,7 +5,7 @@ import { APIService } from '../scripts/classes/APIService.js';
 import { LinkedList } from '../scripts/classes/LinkedList.js';
 
 // load mood/genre list for autocomplete suggestions
-import genres from '../../client/src/assets/genres.json' with { type: 'json' };
+//import genres from '../../client/src/assets/genres.json' with { type: 'json' };
 
 // Store playlist per-session instead of a single global array
 function getSessionPlaylist(req) {
