@@ -2,10 +2,10 @@ import {
     getTopAlbumsForTag,
     searchTags,
     getSimilarTags,
-    getAlbumInfo,
-} from "./lastfm.controller";
+    getAlbumInfo
+} from "./lastfm.controller.js";
 
-export async function resolveKeywords(keyword) {
+async function resolveKeywords(keyword) {
 
     const kw = keyword.trim().toLowerCase();
 
@@ -21,4 +21,10 @@ export async function resolveKeywords(keyword) {
     }
 
     return [kw];
+}
+
+
+export {
+
+    resolveKeywords
 }

@@ -5,7 +5,7 @@ import SearchIcon from "../assets/icons/search_btn.svg";
 import HistoryIcon from "../assets/icons/history.svg";
 import { usePlayerContext, usePlaylistContext } from "../contexts.js";
 import { useMoodAutocomplete } from "../hooks/useMoodAutocomplete.js";
-import { submitMoods } from "../hooks/useMoodSubmit.js";
+import { submitMoods, test } from "../hooks/useMoodSubmit.js";
 
 export default function UserInput() {
   const { accessToken } = usePlayerContext();
@@ -48,7 +48,7 @@ export default function UserInput() {
   const handleSearch = async () => {
     setActiveButton("search");
     try {
-      const submitRequest = await submitMoods(selectedMoods, accessToken);
+      const submitRequest = await test(selectedMoods, accessToken);
       if (!submitRequest) {
         showOverlayMessage("sending moods failed", "red");
         return;
@@ -216,7 +216,7 @@ export default function UserInput() {
         <div className={styles.dropdown}>
           <div className={styles.dropdown_suggestions}>
             {filteredSuggestions.length > 0 ||
-            fetchedAlbumSuggestions.length > 0 ? (
+              fetchedAlbumSuggestions.length > 0 ? (
               <>
                 {filteredSuggestions.map((suggestion, index) => (
                   <div

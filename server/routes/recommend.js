@@ -1,15 +1,24 @@
 import express from 'express';
 
-import resolveKeyword from '../utils/tagResolver.controller.js';
-import getAlbumForTag from '../utils/lastfm.controller.js';
-import scoreAlbum from '../utils/scorer.controller.js';
-import findAlbumOnSpotify from '../utils/spotify.controller.js';
+import { resolveKeywords } from '../controllers/tagResolver.controller.js';
+import { scoreAlbum } from '../controllers/scorer.controller.js';
+import findAlbumOnSpotify from '../controllers/spotify.controller.js';
+
+import {
+
+    lastFmRequest,
+    getTopAlbumsForTag,
+    searchTags,
+    getSimilarTags,
+    getAlbumInfo,
+} from '../controllers/lastfm.controller.js';
 
 const router = express.Router();
 
-router.get('/api/recommend', async (req, res) => {
+router.get('/createRecommendation', async (req, res) => {
 
-    const rawKeywords = req.query.keywords.trim() || '';
+    console.log("at recommend")
+    const rawKeywords = req.query.keywords || '';
 
     if (!rawKeywords || rawKeywords === '') {
         return res.status(400).json({ error: 'Keywords are required' });
@@ -49,23 +58,45 @@ router.get('/api/recommend', async (req, res) => {
         const rankedList = scoreAlbum(albums);
 
         if (ranked.length === 0) {
-            return res.json({ albums: [], searchId, message: 'No albums found for these keywords' });
+            return res.json({ albums: [], message: 'No albums found for these keywords' });
         }
 
         const shortenedList = rankedList.slice(0, 20);
 
-        const enriched = await Promise.all(
-            shortenedList.map(async (album) => {
+        /*         const enriched = await Promise.all(
+                    shortenedList.map(async (album) => {
+        
+                        if (album.spotify_url && album.image_url) { return album; }
+        
+                        const spotifyData = await findAlbumOnSpotify(album.name, album.artist).catch(() => null);
+                        return spotifyData ? { ...album, ...spotifyData } : album;
+        
+                    })
+                ); */
 
-                if (album.spotify_url && album.image_url) { return album; }
+        res.status(200).json({
+            keywords,
+            list: shortenedList,
+        });
 
-                const spotifyData = await findAlbumOnSpotify(album.name, album.artist).catch(() => null);
-                return spotifyData ? { ...album, ...spotifyData } : album;
-
-            })
-        );
-
-        // --> return res.json({ albums: enriched, searchId: req.query.searchId || null });
-    } catch (error) { }
+    } catch (error) {
+        console.error('Recommend route failed:', err.message);
+        res.status(502).json({ error: 'Failed to fetch recommendations', details: err.message });
+    }
 
 });
+
+router.get('/lastfm', (req, res) => {
+
+    console.log("at lastfm", req.headers.keywords)
+    const moodsHeader = req.headers.keywords;
+
+    res.status(200).json({
+        message: "ok"
+    })
+});
+
+
+
+
+export default router;

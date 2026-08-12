@@ -127,7 +127,7 @@ export default function App() {
 
         const prevSong = state.track_window.previous_tracks[0]
           ? state.track_window.previous_tracks[0].id
-          : null; // --> WHEN NEW PLAYLIST IS LOADED, NO PREV OR NEXT TRACK FOUND = ERROR
+          : null;
         const nextSong = state.track_window.next_tracks[0]
           ? state.track_window.next_tracks[0].id
           : null;
@@ -145,8 +145,8 @@ export default function App() {
       webplayer.connect().then((success) => {
         success
           ? console.log(
-              "The Web Playback SDK successfully connected to Spotify!"
-            )
+            "The Web Playback SDK successfully connected to Spotify!"
+          )
           : console.error("Error");
       });
     };

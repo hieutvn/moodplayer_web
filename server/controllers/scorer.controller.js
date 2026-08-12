@@ -1,4 +1,4 @@
-export function scoreAlbum(albumsByTag) {
+function scoreAlbum(albumsByTag) {
 
     const scores = new Map();
 
@@ -21,4 +21,7 @@ export function scoreAlbum(albumsByTag) {
     }
 }
 
-module.exports = { scoreAlbum };
+export {
+
+    scoreAlbum
+}

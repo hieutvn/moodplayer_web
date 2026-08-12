@@ -6,7 +6,7 @@ const LASTFM_KEY = process.env.LASTFM_KEY;
 const LASTFM_BASE_URL = process.env.LASTFM_BASE_URL;
 
 
-export async function lastFmRequest(method, params = {}) {
+async function lastFmRequest(method, params = {}) {
 
     try {
 
@@ -29,6 +29,7 @@ export async function lastFmRequest(method, params = {}) {
             throw new Error(`Last.fm API error ${data.error}: ${data.message}`);
         }
 
+        console.log("calling lastfm")
         return data;
 
     } catch (error) {
@@ -38,7 +39,7 @@ export async function lastFmRequest(method, params = {}) {
 
 }
 
-export async function getTopAlbumsForTag(tag, limit = 50, page = 1) {
+async function getTopAlbumsForTag(tag, limit = 50, page = 1) {
 
     const data = await lastFmRequest("tag.getTopAlbums", { tag, limit, page });
     const tags = data.albums?.albums || [];
@@ -46,19 +47,29 @@ export async function getTopAlbumsForTag(tag, limit = 50, page = 1) {
     return Array.isArray(tags) ? tags : [tags];
 }
 
-export async function searchTags(query, limit = 10) {
+async function searchTags(query, limit = 10) {
     const data = await lastfmRequest('tag.search', { tag: query, limit });
     const tags = data.results?.tagmatches?.tag || [];
     return Array.isArray(tags) ? tags : [tags];
 }
 
-export async function getSimilarTags(tag) {
+async function getSimilarTags(tag) {
     const data = await lastfmRequest('tag.getSimilar', { tag });
     const tags = data.similartags?.tag || [];
     return Array.isArray(tags) ? tags : [tags];
 }
 
-export async function getAlbumInfo(artist, album) {
+async function getAlbumInfo(artist, album) {
     const data = await lastfmRequest('album.getInfo', { artist, album });
     return data.album || null;
 }
+
+
+export {
+
+    lastFmRequest,
+    getTopAlbumsForTag,
+    searchTags,
+    getSimilarTags,
+    getAlbumInfo,
+};
