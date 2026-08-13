@@ -48,7 +48,7 @@ export default function UserInput() {
   const handleSearch = async () => {
     setActiveButton("search");
     try {
-      const submitRequest = await test(selectedMoods, accessToken);
+      const submitRequest = await submitMoods(selectedMoods, accessToken);
       if (!submitRequest) {
         showOverlayMessage("sending moods failed", "red");
         return;
@@ -72,6 +72,32 @@ export default function UserInput() {
       showOverlayMessage("sending moods failed", "red");
     }
   };
+
+  const testing = async () => {
+
+    try {
+      const request = await fetch(`http://127.0.0.1:3000/api/recommend/lastfm`,
+        {
+          method: 'GET',
+          headers: {
+            message: "yo",
+          },
+          credentials: 'include',
+        }
+      );
+      if (!request.ok) { throw new Error('Failed to send moods', request.status) }
+
+      const response = await request.json();
+      console.log(response)
+      return response;
+
+    }
+    catch (error) {
+      console.error('Error sending moods', error);
+    }
+
+  }
+
 
   const handleRefresh = () => {
     setActiveButton("refresh");
@@ -112,6 +138,7 @@ export default function UserInput() {
       <div className={styles.search_wrapper} ref={wrapperRef}>
         <div className={styles.search_wrapper_top}>
           <p>Current Session</p>
+          <button onClick={testing}>test</button>
           <button
             type="button"
             className={

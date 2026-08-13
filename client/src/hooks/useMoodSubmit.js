@@ -68,7 +68,7 @@ export async function test(selectedMood, accessToken) {
         method: 'GET',
         headers: {
           access_token: accessToken,
-          keywords: JSON.stringify(selectedMoods),
+          moods: JSON.stringify(selectedMoods),
         },
         credentials: 'include',
 

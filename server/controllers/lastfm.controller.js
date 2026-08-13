@@ -12,9 +12,9 @@ async function lastFmRequest(method, params = {}) {
 
         const queryParams = new URLSearchParams({
             method,
+            ...params,
             api_key: LASTFM_KEY,
             format: 'json',
-            ...params,
         });
 
         const response = await fetch(`${LASTFM_BASE_URL}?${queryParams}`);
@@ -39,10 +39,11 @@ async function lastFmRequest(method, params = {}) {
 
 }
 
-async function getTopAlbumsForTag(tag, limit = 50, page = 1) {
+async function getTopAlbumsForTag(tag, limit = 5, page = 1) {
 
     const data = await lastFmRequest("tag.getTopAlbums", { tag, limit, page });
-    const tags = data.albums?.albums || [];
+    console.log("req data at func", data)
+    const tags = data.albums?.album || [];
 
     return Array.isArray(tags) ? tags : [tags];
 }

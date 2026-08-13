@@ -86,14 +86,25 @@ router.get('/createRecommendation', async (req, res) => {
 
 });
 
-router.get('/lastfm', (req, res) => {
+router.get('/lastfm', async (req, res) => {
 
-    console.log("at lastfm", req.headers.keywords)
-    const moodsHeader = req.headers.keywords;
+    console.log("at lastfm", req.headers.message)
 
-    res.status(200).json({
-        message: "ok"
-    })
+    try {
+
+        const lastFmReq = await getTopAlbumsForTag("rap")
+
+        console.log("req data", lastFmReq)
+
+        res.status(200).json({
+            message: "ok"
+        })
+
+    } catch (error) {
+
+        console.log("LAST FM ERROR", error)
+    }
+
 });
 
 
