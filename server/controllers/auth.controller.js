@@ -7,7 +7,7 @@ const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const CALLBACK_URI = process.env.CALLBACK_URI;
 
 
-export function generateLoginURL() { 
+export function generateLoginURL() {
     const scopes = [
 
         "streaming",
@@ -31,11 +31,13 @@ export function generateLoginURL() {
 
     });
 
+    console.log("redirect", redirectURLParams)
+
     return `https://accounts.spotify.com/authorize?${redirectURLParams.toString()}`;
 }
 
 
-export async function generateAccessToken(authCode) { 
+export async function generateAccessToken(authCode) {
 
     const accessURL = new URLSearchParams({
 

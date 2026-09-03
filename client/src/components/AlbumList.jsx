@@ -1,9 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import styles from '../assets/styles/albumlist.module.css';
-import { usePlayerContext } from '../contexts.js';
+
+import { useAccessTokenContext } from '../contexts/AccessTokenContext.jsx';
+import { useWebPlayerContext } from '../contexts/WebplayerContext.jsx';
 
 export default function AlbumList() {
-    const { currentAlbum, accessToken, currentSong, deviceId } = usePlayerContext();
+    const accessToken = useAccessTokenContext();
+    const { currentAlbum, currentSong, deviceId } = useWebPlayerContext();
+
 
     const [songs, setSongs] = useState([]);
     const [albumList, setAlbumList] = useState([]);
@@ -64,10 +68,8 @@ export default function AlbumList() {
 
             const album = await fetchAlbum.json();
 
-            /// SET ARTIST ID ///
             const artistID = album.artists[0].id;
             if (artistID !== currentArtistID) setCurrentArtistID(artistID)
-            ///
 
             sessionStorage.setItem(album.name, JSON.stringify({
                 album_name: album.name,
@@ -140,14 +142,10 @@ export default function AlbumList() {
 
 
 
-
-    /// ---> TBD. SESSIONSTORAGE UM KÜNSTLER KURZZEITIG ZU SPEICHERN UND ABZURUFEN Z.B. ID
-
-    // <li key={index} className={`styles${ (item.name === currentSong.name) ? song_container.active : song_container}`}> 
-
-    if (!accessToken) { return <h1>Loading..</h1> }
-    else if (albumList) {
-        return (
+    return (!accessToken) ?
+        (<h1>Loading..</h1>)
+        :
+        (
             <div className={styles.albumlist}>
                 <div className={styles.artist_container}>
                     <div className={styles.artist_infos}>
@@ -190,5 +188,5 @@ export default function AlbumList() {
                 </ul>
             </div >
         )
-    }
+
 }

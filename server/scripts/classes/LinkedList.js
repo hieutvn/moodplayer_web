@@ -1,5 +1,3 @@
-export { Node, LinkedList }
-
 class Node {
 
     constructor(value) {
@@ -7,6 +5,9 @@ class Node {
         this.value = value;
         this.next = null;
     }
+
+    getValue() { return this.value }
+    getNext() { return this.next }
 }
 
 class LinkedList {
@@ -69,10 +70,11 @@ class LinkedList {
 
         while (current) {
 
-            result += current.value + "->";
-            current = current.next;
+            result += current.getValue() + "->";
+            current = current.getNext();
         }
         console.log(result + "null");
     }
 }
 
+export { Node, LinkedList }

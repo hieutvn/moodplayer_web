@@ -11,6 +11,7 @@ import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { usePlayerContext, usePlaylistContext } from "../contexts.js";
+import { useWebPlayerContext } from '../contexts/WebplayerContext.jsx';
 import Settings from "./Settings.jsx";
 
 export default function Player() {
@@ -20,9 +21,9 @@ export default function Player() {
     isPlaying,
     accessToken,
     deviceId,
-    sessionPlaylist,
-  } = usePlayerContext();
-  const { playlistRef } = usePlaylistContext();
+  } = useWebPlayerContext();
+
+  const sessionPlaylist = [];
 
   const [volume, setVolume] = useState(50);
   const [playlist, setPlaylist] = useState([]);
@@ -33,6 +34,28 @@ export default function Player() {
   const [duration, setDuration] = useState(0);
   const lastSeekRef = useRef(0);
   const [playlistIndex, setPlaylistIndex] = useState(0);
+
+  const testing = async () => {
+
+    try {
+      const request = await fetch(`http://127.0.0.1:3000/api/recommend/createRecommendation`,
+        {
+          method: 'GET',
+          credentials: 'include',
+        }
+      );
+      if (!request.ok) { throw new Error('Failed to send moods', request.status) }
+
+      const response = await request.json();
+      console.log("playlist", response)
+      return response;
+
+    }
+    catch (error) {
+      console.error('Error sending moods', error);
+    }
+
+  }
 
   const playAlbum = async (albumId) => {
     if (!albumId || !deviceId) return;
@@ -47,7 +70,7 @@ export default function Player() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            context_uri: `spotify:album:${albumId}`,
+            context_uri: `spotify:track:${albumId}`,
           }),
         },
       );
@@ -57,7 +80,8 @@ export default function Player() {
   };
 
   const playSong = useMemo(() => {
-    playAlbum(playlistRef.current[playlistIndex]);
+    // playAlbum(playlistRef.current[playlistIndex]);
+    console.log("playing..");
   }, [playlistIndex]);
 
   const prevAlbum = () => {
@@ -81,6 +105,7 @@ export default function Player() {
       setCurrentAlbumIdx(0);
       playAlbum(sessionPlaylist[0]);
     }
+    console.log("sessionPlaylist changed:", sessionPlaylist);
   }, [sessionPlaylist]);
 
   const onChangeVolume = (event) => {

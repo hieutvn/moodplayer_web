@@ -30,12 +30,12 @@ export async function submitMoods(selectedMoods, accessToken) {
 
 export async function requestRecommendations(selectedMoods, accessToken) {
 
-  if (!accessToken || !selectedMoods.length) return;
-
+  if (!accessToken || !selectedMoods || selectedMoods.length === 0) return;
+  console.log("sending", selectedMoods)
   try {
     const request = await fetch(`http://127.0.0.1:3000/api/recommend/createRecommendation`,
       {
-        method: 'GET',
+        method: 'POST',
         headers: {
           access_token: accessToken,
           keywords: JSON.stringify(selectedMoods),

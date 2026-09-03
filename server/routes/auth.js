@@ -27,10 +27,6 @@ router.get("/", (req, res) => {
 
 
 
-////////////////////
-/// LOGIN ROUTE ///
-//////////////////
-
 router.get('/login', (req, res) => {
     console.log("Route at /login");
 
@@ -40,12 +36,6 @@ router.get('/login', (req, res) => {
 
 
 
-
-
-
-///////////////////////
-/// CALLBACK ROUTE ///
-/////////////////////
 
 router.get('/callback', async (req, res, next) => {
     console.log("Route at /callback");
@@ -88,6 +78,7 @@ router.get('/callback', async (req, res, next) => {
     catch (error) { next(error) }
 });
 
+
 router.get("/gettoken", (req, res, next) => {
 
     console.log("at gettoken");
@@ -100,6 +91,7 @@ router.get("/gettoken", (req, res, next) => {
         access_token: req.cookies.access_token
     });
 });
+
 
 router.post("/refreshtoken", async (req, res, next) => {
     try {

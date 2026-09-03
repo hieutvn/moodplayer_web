@@ -1,10 +1,11 @@
 import styles from '../assets/styles/albumswiper.module.css';
 
 import { useState, useEffect } from 'react';
-import { usePlayerContext } from '../contexts.js';
+import { useWebPlayerContext } from '../contexts/WebplayerContext.jsx';
+
 
 export default function AlbumSwiper() {
-    const { currentAlbum } = usePlayerContext();
+    const { currentAlbum } = useWebPlayerContext();
 
     const [currentImg, setCurrentImg] = useState('');
 

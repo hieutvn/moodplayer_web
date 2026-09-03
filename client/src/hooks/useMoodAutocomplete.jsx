@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from 'react';
-import { usePlayerContext } from '../contexts.js';
+import { useAccessTokenContext } from '../contexts/AccessTokenContext.jsx';
 
 /**
  * @param {string[]} moods - List of mood strings to filter against
@@ -19,7 +19,7 @@ export function useMoodAutocomplete(moods, onSelect) {
   const inputValueRef = useRef('');
   const suggestionTimerRef = useRef(null);
 
-  const { accessToken } = usePlayerContext();
+  const accessToken = useAccessTokenContext();
 
 
   inputValueRef.current = inputValue;

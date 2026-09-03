@@ -2,8 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import styles from "../assets/styles/settings.module.css";
 import { usePlayerContext } from "../contexts.js";
 
-export default function Settings() {
-  const { accessToken } = usePlayerContext();
+export default function Settings(accessToken) {
 
   const [profileData, setProfileData] = useState({
     name: "Profile",
@@ -13,6 +12,32 @@ export default function Settings() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const menuRef = useRef(null);
+
+    const getProfile = async () => {
+    try {
+      const request = await fetch("http://127.0.0.1:3000/api/user/getuser", {
+        method: "GET",
+        headers: {
+          token: accessToken,
+        },
+      });
+      const data = await request.json();
+
+      setProfileData({
+        name: data.display_name || data.id,
+        img: data.images?.[1]?.url || data.images?.[0]?.url,
+      });
+
+      console.log("func triggered:", data);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+    function toggleMenu() {
+      setToggle((prev) => !prev);
+    }
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -29,51 +54,14 @@ export default function Settings() {
   }, []);
 
   useEffect(() => {
-    if (!accessToken) {
-      setProfileData({ name: "Profile", img: "" });
-      setIsLoaded(false);
-      return;
+    if (!accessToken) { return; }
+      console.log("accessToken testing", accessToken);
+    if (accessToken) {
+      getProfile(accessToken);
     }
+    }, [accessToken]);
 
-    let isMounted = true;
-
-    const getProfile = async () => {
-      try {
-        const request = await fetch("http://127.0.0.1:3000/api/user/getuser", {
-          method: "GET",
-          headers: {
-            token: accessToken,
-          },
-        });
-        const data = await request.json();
-
-        if (!isMounted) return;
-
-        setProfileData({
-          email: data.email || "",
-          name: data.display_name || data.id || "Profile",
-          img: data.images?.[1]?.url || data.images?.[0]?.url || "",
-        });
-        setIsLoaded(true);
-      } catch (error) {
-        console.error(error);
-        if (isMounted) {
-          setProfileData({ name: "Profile", img: "" });
-          setIsLoaded(true);
-        }
-      }
-    };
-
-    getProfile();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [accessToken]);
-
-  function toggleMenu() {
-    setToggle((prev) => !prev);
-  }
+  
 
   return (
     <div className={styles.settings} ref={menuRef}>

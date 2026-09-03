@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { raw } from 'express';
 
 import { resolveKeywords } from '../controllers/tagResolver.controller.js';
 import { scoreAlbum } from '../controllers/scorer.controller.js';
@@ -8,14 +8,19 @@ import {
 
     lastFmRequest,
     getTopAlbumsForTag,
+    getAlbumTags,
     searchTags,
     getSimilarTags,
+    getSimilarArtists,
     getAlbumInfo,
 } from '../controllers/lastfm.controller.js';
 
+import { searchAlbumFromTags, searchSimilarArtistFromMap, mixAndMatchPlaylist } from '../controllers/tagResolver.controller.js';
+
+
 const router = express.Router();
 
-router.get('/createRecommendation', async (req, res) => {
+/* router.get('/createRecommendation', async (req, res) => {
 
     console.log("at recommend")
     const rawKeywords = req.query.keywords || '';
@@ -47,13 +52,13 @@ router.get('/createRecommendation', async (req, res) => {
                 });
         }
 
-        const albums = await Promise.all(
-            uniqueTags.map(async (tag) => ({
-                tag,
-                albums: await getAlbumForTag(tag)
-
-            }))
-        );
+        /*         const albums = await Promise.all(
+                    uniqueTags.map(async (tag) => ({
+                        tag,
+                        albums: await getAlbumForTag(tag)
+        
+                    }))
+                ); 
 
         const rankedList = scoreAlbum(albums);
 
@@ -63,7 +68,7 @@ router.get('/createRecommendation', async (req, res) => {
 
         const shortenedList = rankedList.slice(0, 20);
 
-        /*         const enriched = await Promise.all(
+                const enriched = await Promise.all(
                     shortenedList.map(async (album) => {
         
                         if (album.spotify_url && album.image_url) { return album; }
@@ -72,11 +77,11 @@ router.get('/createRecommendation', async (req, res) => {
                         return spotifyData ? { ...album, ...spotifyData } : album;
         
                     })
-                ); */
+                ); 
 
-        res.status(200).json({
-            keywords,
-            list: shortenedList,
+
+        return res.status(200).json({
+            message: "ok"
         });
 
     } catch (error) {
@@ -84,6 +89,23 @@ router.get('/createRecommendation', async (req, res) => {
         res.status(502).json({ error: 'Failed to fetch recommendations', details: err.message });
     }
 
+}); */
+
+router.post('/createRecommendation', async (req, res) => {
+
+    console.log("at recommend")
+
+    let collectAlbums = new Map();
+
+    const rawKeywords = JSON.parse(req.headers.keywords) || [];
+    console.log("keyword", rawKeywords)
+
+
+    const playlist = await mixAndMatchPlaylist(rawKeywords);
+
+    res.status(200).json({
+        playlist: playlist
+    });
 });
 
 router.get('/lastfm', async (req, res) => {
@@ -107,7 +129,11 @@ router.get('/lastfm', async (req, res) => {
 
 });
 
+router.get('/getRecommendations', async (req, res) => {
 
+});
 
 
 export default router;
+
+
