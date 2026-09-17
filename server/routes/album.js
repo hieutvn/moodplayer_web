@@ -28,42 +28,5 @@ router.get("/getalbum", async (req, res) => {
 });
 
 
-async function recommand(token, moods) {
-
-    /* 
-        LINKEDLIST
-
-        FETCH -> SEARCH ENDPOINT
-
-        DATA.JSON
-
-        LOOP DATA
-        ADD TO NODE
-        ADD TO LINKEDLIST
-    
-    */
-    try {
-
-        let playlist = new LinkedList();
-
-        const request = await fetch(`https://api.spotify.com/v1/`, {
-
-            method: 'GET',
-            headers: {
-
-                Authorization: 'Bearer ' + token
-            }
-        })
-        const data = await request.json();
-    }
-    catch (error) {
-
-        console.error(error)
-    }
-
-
-}
-
-
 
 export default router;

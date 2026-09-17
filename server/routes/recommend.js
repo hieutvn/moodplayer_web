@@ -2,18 +2,7 @@ import express, { raw } from 'express';
 
 import { resolveKeywords } from '../controllers/tagResolver.controller.js';
 import { scoreAlbum } from '../controllers/scorer.controller.js';
-import findAlbumOnSpotify from '../controllers/spotify.controller.js';
 
-import {
-
-    lastFmRequest,
-    getTopAlbumsForTag,
-    getAlbumTags,
-    searchTags,
-    getSimilarTags,
-    getSimilarArtists,
-    getAlbumInfo,
-} from '../controllers/lastfm.controller.js';
 
 import { searchAlbumFromTags, searchSimilarArtistFromMap, mixAndMatchPlaylist } from '../controllers/tagResolver.controller.js';
 
@@ -95,8 +84,6 @@ router.post('/createRecommendation', async (req, res) => {
 
     console.log("at recommend")
 
-    let collectAlbums = new Map();
-
     const rawKeywords = JSON.parse(req.headers.keywords) || [];
     console.log("keyword", rawKeywords)
 
@@ -108,26 +95,6 @@ router.post('/createRecommendation', async (req, res) => {
     });
 });
 
-router.get('/lastfm', async (req, res) => {
-
-    console.log("at lastfm", req.headers.message)
-
-    try {
-
-        const lastFmReq = await getTopAlbumsForTag("rap")
-
-        console.log("req data", lastFmReq)
-
-        res.status(200).json({
-            message: "ok"
-        })
-
-    } catch (error) {
-
-        console.log("LAST FM ERROR", error)
-    }
-
-});
 
 router.get('/getRecommendations', async (req, res) => {
 

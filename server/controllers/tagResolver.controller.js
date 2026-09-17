@@ -67,6 +67,7 @@ import {
     getTopAlbumsForTag,
     getTopAlbumsFromArtist,
     getAlbumTags,
+    getAlbumTopTags,
     searchTags,
     getSimilarTags,
     getSimilarArtists,
@@ -102,13 +103,25 @@ async function searchAlbumFromTags(rawKeywords) {
 
         const searchedKeyword = await getTopAlbumsForTag(keyword);
 
-        searchedKeyword.map((album) => {
+        searchedKeyword.map(async (album) => {
+
+            const relatedTags = await getAlbumTopTags(album.artist.name, album.name);
+
+            if (Array.isArray(relatedTags)) {
+
+                relatedTags.map((tag) => {
+                    console.log("ARTIST", album.artist.name)
+                    console.log("TAG", tag.name)
+                });
+            }
+
             albumList.set(
                 `${album.artist.name}`, {
                 artist_mbid: album.artist.mbid,
                 album: album.name,
                 album_mbid: album.mbid,
-            })
+                related_tags: relatedTags
+            });
         });
     })
     await Promise.all(searchingAlbums);
@@ -131,9 +144,12 @@ async function searchSimilarArtistFromMap(rawKeywordsMap) {
 
                 similarAlbum.set(
                     `${searchedAlbum[0].artist.name}`, {
-                    artist_mbid: searchedAlbum[0].artist.mbid,
                     album: searchedAlbum[0].name,
-                    album_mbid: searchedAlbum[0].mbid
+                    external_ids: {
+
+                        artist_mbid: searchedAlbum[0].artist.mbid,
+                        album_mbid: searchedAlbum[0].mbid
+                    }
                 })
             }
         });
@@ -142,6 +158,7 @@ async function searchSimilarArtistFromMap(rawKeywordsMap) {
     }
     return similarAlbum;
 }
+
 
 async function mixAndMatchPlaylist(rawKeywords) {
 
@@ -152,7 +169,33 @@ async function mixAndMatchPlaylist(rawKeywords) {
         if (!searchAlbumsByTags.has(key)) {
             searchAlbumsByTags.set(key, value);
         }
+
+        /*         console.log("key", key)
+                console.log("value", value.album)
+        
+                const relatedTags = await getAlbumTopTags(key, value.album);
+        
+                if (Array.isArray(relatedTags)) {
+        
+                    relatedTags.map((tag) => {
+                        console.log("TAG", tag.name)
+                    });
+                }
+
+        for (const [key, value] of searchAlbumsByTags) {
+            console.log("key", key)
+            console.log("value", value.album)
+        }
+            */
+
     }
+
+    /*
+                const relatedTags = await getAlbumTags(album.artist.mbid, album.mbid);
+            console.log("ALBUM TAGS", getAlbumInfo);
+                            //related_tags: relatedTags
+
+    */
 
 
     return searchAlbumsByTags;

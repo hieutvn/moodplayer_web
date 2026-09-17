@@ -53,14 +53,11 @@ export default function useWebPlayer(accessToken) {
         console.error("Failed to perform playback", message);
       });
 
-      webplayer.addListener("ready", ({ device_id }) => {
+      webplayer.addListener("ready", async ({ device_id }) => {
         console.log("Webplayer initialized. ID: ", device_id);
 
-        if (device_id) setDeviceId(device_id);
         setWebPlayer(webplayer);
-
-        console.log("Changing to device");
-        fetch("https://api.spotify.com/v1/me/player", {
+        await fetch("https://api.spotify.com/v1/me/player", {
           method: "PUT",
           body: JSON.stringify({
             device_ids: [device_id],
@@ -72,7 +69,25 @@ export default function useWebPlayer(accessToken) {
         }).then((response) => {
           console.log(response);
         });
+
+        if (device_id) {
+
+          setDeviceId(device_id);
+
+          await fetch(`http://127.0.0.1:3000/api/playlist/123/register-player`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body:
+              JSON.stringify({ deviceId: device_id }),
+
+          });
+        }
+
       });
+
 
       webplayer.addListener("player_state_changed", (state) => {
         if (!state) return;

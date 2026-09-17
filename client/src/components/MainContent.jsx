@@ -14,7 +14,6 @@ export default function MainContent() {
     const accessToken = useAccessTokenContext();
 
     return (
-
         <WebPlayerProvider accessToken={accessToken}>
             <main className={styles.main}>
 

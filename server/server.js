@@ -12,7 +12,7 @@ import albumRouter from './routes/album.js';
 import artistRouter from './routes/artist.js';
 import searchRouter from './routes/search.js';
 import recommendRouter from './routes/recommend.js';
-
+import playlistRouter from './routes/playlist.js';
 
 import { authenticateAccess } from "./routes/middleware/token-middleware.js";
 
@@ -67,6 +67,7 @@ app.use("/api/album", albumRouter);
 app.use("/api/artist", artistRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/recommend", recommendRouter);
+app.use("/api/playlist", playlistRouter);
 
 
 app.get("/", (req, res) => {

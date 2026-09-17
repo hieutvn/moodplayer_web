@@ -62,6 +62,14 @@ async function getAlbumTags(artist, album, limit = 10, page = 1, autocorrect = 1
     return Array.isArray(tags) ? tags : [tags];
 }
 
+async function getAlbumTopTags(artist, album, limit = 10, page = 1, autocorrect = 1) {
+
+    const data = await lastFmRequest("album.getTopTags", { artist, album, limit, page, autocorrect });
+    const tags = data.toptags?.tag || [];
+
+    return Array.isArray(tags) ? tags : [tags];
+}
+
 async function searchTags(query, limit = 10) {
     const data = await lastFmRequest('tag.search', { tag: query, limit });
     const tags = data.results?.tagmatches?.tag || [];
@@ -95,6 +103,7 @@ export {
     getTopAlbumsForTag,
     getTopAlbumsFromArtist,
     getAlbumTags,
+    getAlbumTopTags,
     searchTags,
     getSimilarTags,
     getSimilarArtists,

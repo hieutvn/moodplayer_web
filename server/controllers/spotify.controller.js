@@ -1,7 +1,9 @@
-// MOVE ALL SPOTIFY REQ TO HERE???
 
 
-export default async function findAlbumOnSpotify(token, name, artist) {
+
+
+
+export async function findAlbumOnSpotify(token, name, artist) {
     const res = await axios.get('https://api.spotify.com/v1/search', {
         headers: { Authorization: `Bearer ${token}` },
         params: { q: `album:${name} artist:${artist}`, type: 'album', limit: 1 },
@@ -15,3 +17,4 @@ export default async function findAlbumOnSpotify(token, name, artist) {
         image_url: item.images?.[0]?.url,
     };
 }
+

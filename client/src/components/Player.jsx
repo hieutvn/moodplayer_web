@@ -27,8 +27,8 @@ export default function Player() {
 
   const [volume, setVolume] = useState(50);
   const [playlist, setPlaylist] = useState([]);
-  const [playNextAlbum, setPlayNextAlbum] = useState(false);
-  const [playPrevAlbum, setPlayPrevAlbum] = useState(false);
+  const [onQueuePlaylist, setOnQueuePlaylist] = useState([]);
+  const [onPlayingAlbum, setOnPlayingAlbum] = useState([]);
   const [currentAlbumIdx, setCurrentAlbumIdx] = useState(0);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -55,6 +55,24 @@ export default function Player() {
       console.error('Error sending moods', error);
     }
 
+  }
+
+  const playNextAlbum = async () => {
+
+    await fetch(`http://127.0.0.1:3000/api/playlist/play-next`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accessToken }),
+    });
+  }
+
+  const playPrevAlbum = async () => {
+
+    await fetch(`http://127.0.0.1:3000/api/playlist/play-prev`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accessToken }),
+    });
   }
 
   const playAlbum = async (albumId) => {
@@ -194,7 +212,7 @@ export default function Player() {
               <div className={styles.player_controls}>
                 <div className={styles.tooltip}>
                   <span className={styles.tooltip_text}>Previous Album</span>
-                  <button className={styles.next_album_btn} onClick={prevAlbum}>
+                  <button className={styles.next_album_btn} onClick={playPrevAlbum}>
                     <NextAlbumIcon
                       className={styles.icon}
                       style={{ transform: "rotate(180deg)" }}
@@ -256,7 +274,7 @@ export default function Player() {
 
                 <div className={styles.tooltip}>
                   <span className={styles.tooltip_text}>Next Album</span>
-                  <button className={styles.next_album_btn} onClick={nextAlbum}>
+                  <button className={styles.next_album_btn} onClick={playNextAlbum}>
                     <NextAlbumIcon className={styles.icon} />
                   </button>
                 </div>
