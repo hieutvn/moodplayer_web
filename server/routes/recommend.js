@@ -4,7 +4,7 @@ import { resolveKeywords } from '../controllers/tagResolver.controller.js';
 import { scoreAlbum } from '../controllers/scorer.controller.js';
 
 
-import { searchAlbumFromTags, searchSimilarArtistFromMap, mixAndMatchPlaylist } from '../controllers/tagResolver.controller.js';
+//import { searchAlbumFromTags, searchSimilarArtistFromMap, mixAndMatchPlaylist } from '../controllers/tagResolver.controller.js';
 
 
 const router = express.Router();
@@ -88,7 +88,7 @@ router.post('/createRecommendation', async (req, res) => {
     console.log("keyword", rawKeywords)
 
 
-    const playlist = await mixAndMatchPlaylist(rawKeywords);
+    //const playlist = await mixAndMatchPlaylist(rawKeywords);
 
     res.status(200).json({
         playlist: playlist

@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import styles from "../assets/styles/userinput.module.css";
 import genres from "../assets/genres.json";
 import SearchIcon from "../assets/icons/search_btn.svg";
 import HistoryIcon from "../assets/icons/history.svg";
-import { usePlayerContext, usePlaylistContext } from "../contexts.js";
+import { usePlayerContext } from "../contexts.js";
 import { useMoodAutocomplete } from "../hooks/useMoodAutocomplete.jsx";
 import { submitMoods, requestRecommendations } from "../hooks/useMoodSubmit.js";
-import { useWebPlayerContext } from '../contexts/WebplayerContext.jsx';
+import { usePlaylistContext } from '../contexts/PlaylistContext.jsx';
 
 export default function UserInput(accessToken) {
-  const { currentAlbum } = useWebPlayerContext();
+  const { currentPlaylist, setCurrentPlaylist } = usePlaylistContext();
 
 
   const [moods, setMoods] = useState([]);
@@ -73,12 +73,12 @@ export default function UserInput(accessToken) {
     }
   };
 
+  const getPlaylistByTags = async () => {
 
-  const handleRefresh = () => {
-    setActiveButton("refresh");
-    setSelectedMoods([]);
-    showOverlayMessage("session cleared", "green");
+    const playlist = await requestRecommendations(selectedMoods, accessToken);
+    setCurrentPlaylist(playlist);
   };
+
 
   const {
     inputValue,
@@ -119,7 +119,7 @@ export default function UserInput(accessToken) {
                   ? `${styles.search_btn}`
                   : `${styles.search_btn} ${styles.searchable}`
               }
-              onClick={() => requestRecommendations(selectedMoods, accessToken)}
+              onClick={() => getPlaylistByTags()}
             >
               Search
             </button>

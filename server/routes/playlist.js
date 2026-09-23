@@ -1,7 +1,18 @@
 import express from 'express';
 
-import { mixAndMatchPlaylist } from '../controllers/tagResolver.controller.js';
-import { saveAlbums, getAlbums } from '../db/db.js';
+import {
+    mergePlaylistMaps
+} from '../controllers/tagResolver.controller.js';
+import {
+    saveUserSearch,
+    saveAlbums,
+    insertSearchResults,
+    updateSpotifyData,
+    getAlbumsFromSearchResults,
+    getCurrentSessionId
+} from '../db/db.js';
+
+import { findAlbumOnSpotify } from '../controllers/spotify.controller.js';
 
 const router = express.Router();
 
@@ -18,31 +29,48 @@ function getCurrentPlaylist(req) {
 router.post('/createRecommendation', async (req, res) => {
 
     console.log("at recommend")
-
-    let rawKeywords = JSON.parse(req.headers.keywords || '[]');
+    const accessToken = req.cookies.access_token.access_token || null;
+    let rawKeywords = JSON.parse(req.headers.keywords).sort() || '[]';
+    let currentPlaylist = [];
 
     if (rawKeywords.length === 0) { return res.status(400).json({ error: 'No keywords provided' }); }
 
     try {
-        //req.session.currentPlaylist = await mixAndMatchPlaylist(rawKeywords);
+        const saveSearchId = saveUserSearch(rawKeywords);
+        let position = 0;
+        const mergingMaps = await mergePlaylistMaps(rawKeywords);
 
-        //.then((data) => console.log(data));
-        const currentPlaylist = await mixAndMatchPlaylist(rawKeywords);
+        for (const [key, value] of mergingMaps) {
 
-        //saveAlbums(currentPlaylist);
+            const saved = saveAlbums(key, value.album, value.external_ids);
 
-        // db.save(currentPlaylist)
-        //const insertTags = 
+            insertSearchResults(saveSearchId, saved.id, position++);
 
 
+        };
+
+        const savedAlbums = getAlbumsFromSearchResults(saveSearchId);
+
+        for (const album of savedAlbums) {
+
+            const spotifyData = await findAlbumOnSpotify(accessToken, album.artist, album.album_name);
+
+            if (spotifyData) {
+
+                updateSpotifyData(spotifyData.spotify_id, spotifyData.spotify_data, album.id);
+            }
+        }
+
+        currentPlaylist = getCurrentSessionId(rawKeywords);
+
+
+        res.status(200).json({
+            playlist: currentPlaylist
+        });
     } catch (error) {
         console.error("Error creating playlist", error);
         return res.status(500).json({ error: "Failed to create playlist" });
     }
-
-    res.status(200).json({
-        playlist: req.session.currentPlaylist
-    });
 });
 
 router.post("/register-player/", (req, res) => {

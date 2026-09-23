@@ -7,7 +7,7 @@ import styles from "../assets/styles/maincontent.module.css";
 
 import { useAccessTokenContext } from '../contexts/AccessTokenContext.jsx';
 import { WebPlayerProvider } from '../contexts/WebplayerContext.jsx';
-
+import { PlaylistProvider } from "../contexts/PlaylistContext.jsx";
 
 export default function MainContent() {
 
@@ -15,18 +15,20 @@ export default function MainContent() {
 
     return (
         <WebPlayerProvider accessToken={accessToken}>
-            <main className={styles.main}>
+            <PlaylistProvider>
+                <main className={styles.main}>
 
-                <div className={styles.main_wrapper}>
-                    <AlbumList />
-                    <AlbumSwiper />
-                    <UserInput />
-                </div>
+                    <div className={styles.main_wrapper}>
+                        <AlbumList />
+                        <AlbumSwiper />
+                        <UserInput />
+                    </div>
 
-                <div className={styles.main_btm}>
-                    <Player />
-                </div>
-            </main>
+                    <div className={styles.main_btm}>
+                        <Player />
+                    </div>
+                </main>
+            </PlaylistProvider>
         </WebPlayerProvider>
     )
 }

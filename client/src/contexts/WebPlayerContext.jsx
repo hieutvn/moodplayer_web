@@ -1,10 +1,11 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import useWebPlayer from "../hooks/useWebPlayer.jsx";
 
 const WebPlayerContext = createContext(null);
 
 export function WebPlayerProvider({ accessToken, children }) {
   const playerState = useWebPlayer(accessToken);
+
   return (
     <WebPlayerContext.Provider value={playerState}>
       {children}

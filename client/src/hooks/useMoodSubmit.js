@@ -46,8 +46,7 @@ export async function requestRecommendations(selectedMoods, accessToken) {
     if (!request.ok) { throw new Error('Failed to send moods', request.status) }
 
     const response = await request.json();
-    console.log(response)
-    test()
+    console.log("current playlist", response)
     return response;
 
   } catch (error) {

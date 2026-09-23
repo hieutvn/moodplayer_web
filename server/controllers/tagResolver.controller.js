@@ -74,6 +74,7 @@ import {
     getAlbumInfo,
 } from "./lastfm.controller.js";
 
+
 import { Node, LinkedList } from '../scripts/classes/LinkedList.js';
 
 async function resolveKeywords(keyword) {
@@ -96,8 +97,8 @@ async function resolveKeywords(keyword) {
 
 async function searchAlbumFromTags(rawKeywords) {
 
+    if (!rawKeywords || !Array.isArray(rawKeywords)) { return }
     let albumList = new Map();
-
 
     const searchingAlbums = rawKeywords.map(async (keyword) => {
 
@@ -105,22 +106,23 @@ async function searchAlbumFromTags(rawKeywords) {
 
         searchedKeyword.map(async (album) => {
 
-            const relatedTags = await getAlbumTopTags(album.artist.name, album.name);
+            //const relatedTags = await getAlbumTopTags(album.artist.name, album.name);
 
-            if (Array.isArray(relatedTags)) {
-
-                relatedTags.map((tag) => {
-                    console.log("ARTIST", album.artist.name)
-                    console.log("TAG", tag.name)
-                });
-            }
+            /*             if (Array.isArray(relatedTags)) {
+            
+                            relatedTags.map((tag) => {
+                                console.log("ARTIST", album.artist.name)
+                                console.log("TAG", tag.name)
+                            });
+                        } */
 
             albumList.set(
                 `${album.artist.name}`, {
-                artist_mbid: album.artist.mbid,
                 album: album.name,
-                album_mbid: album.mbid,
-                related_tags: relatedTags
+                external_ids: {
+                    artist_mbid: album.artist.mbid,
+                    album_mbid: album.mbid,
+                }
             });
         });
     })
@@ -160,7 +162,7 @@ async function searchSimilarArtistFromMap(rawKeywordsMap) {
 }
 
 
-async function mixAndMatchPlaylist(rawKeywords) {
+async function mergePlaylistMaps(rawKeywords) {
 
     const searchAlbumsByTags = await searchAlbumFromTags(rawKeywords);
     const searchSimilarAlbums = await searchSimilarArtistFromMap(searchAlbumsByTags);
@@ -169,35 +171,7 @@ async function mixAndMatchPlaylist(rawKeywords) {
         if (!searchAlbumsByTags.has(key)) {
             searchAlbumsByTags.set(key, value);
         }
-
-        /*         console.log("key", key)
-                console.log("value", value.album)
-        
-                const relatedTags = await getAlbumTopTags(key, value.album);
-        
-                if (Array.isArray(relatedTags)) {
-        
-                    relatedTags.map((tag) => {
-                        console.log("TAG", tag.name)
-                    });
-                }
-
-        for (const [key, value] of searchAlbumsByTags) {
-            console.log("key", key)
-            console.log("value", value.album)
-        }
-            */
-
     }
-
-    /*
-                const relatedTags = await getAlbumTags(album.artist.mbid, album.mbid);
-            console.log("ALBUM TAGS", getAlbumInfo);
-                            //related_tags: relatedTags
-
-    */
-
-
     return searchAlbumsByTags;
 }
 
@@ -207,5 +181,5 @@ export {
     resolveKeywords,
     searchAlbumFromTags,
     searchSimilarArtistFromMap,
-    mixAndMatchPlaylist
+    mergePlaylistMaps
 };

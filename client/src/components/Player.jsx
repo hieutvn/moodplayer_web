@@ -10,8 +10,9 @@ import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { usePlayerContext, usePlaylistContext } from "../contexts.js";
+import { usePlayerContext } from "../contexts.js";
 import { useWebPlayerContext } from '../contexts/WebplayerContext.jsx';
+import { usePlaylistContext } from '../contexts/PlaylistContext.jsx';
 import Settings from "./Settings.jsx";
 
 export default function Player() {
@@ -22,6 +23,12 @@ export default function Player() {
     accessToken,
     deviceId,
   } = useWebPlayerContext();
+
+  const { currentPlaylist } = usePlaylistContext();
+
+  useEffect(() => {
+    console.log("CURRENT RECEIVED", currentPlaylist)
+  }, [currentPlaylist])
 
   const sessionPlaylist = [];
 

@@ -39,8 +39,8 @@ db.exec(`
     
     CREATE TABLE IF NOT EXISTS albums (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        album_name TEXT NOT NULL,
         artist TEXT NOT NULL,
+        album_name TEXT NOT NULL,
         external_ids TEXT,
         spotify_id TEXT,
         spotify_data TEXT,
@@ -60,16 +60,26 @@ db.exec(`
     
 `);
 
+function saveUserSearch(tags) {
+
+    const { lastInsertRowid } = db
+        .prepare('INSERT INTO searches (tags) VALUES (?)')
+        .run(JSON.stringify(tags));
+
+    return lastInsertRowid;
+}
 
 
-function saveAlbums(album, artist, external_ids = null) {
+function saveAlbums(artist, album, external_ids = {}) {
 
     console.log("saving..");
 
-    const insert = db.prepare(` 
-        INSERT OR IGNORE INTO albums (album_name, artist, external_ids)
+    db
+        .prepare(` 
+        INSERT OR IGNORE INTO albums (artist, album_name, external_ids)
         VALUES (?, ?, ?)
-    `).run(album, artist, external_ids);
+        `)
+        .run(artist, album, JSON.stringify(external_ids));
 
 
     /*     const insertMany = db.transaction((albums) => {
@@ -88,15 +98,69 @@ function saveAlbums(album, artist, external_ids = null) {
         .get(album, artist);
 }
 
-function getAlbums() {
-    const rows = db.prepare('SELECT * FROM albums ORDER BY id ASC').all();
-    return rows.map((row) => ({
-        ...row,
-        external_ids: JSON.parse(row.external_ids),
-    }));
+function insertSearchResults(search_id, album_id, position) {
+
+    console.log("done")
+    db
+        .prepare('INSERT INTO search_results (search_id, album_id, position) VALUES (?, ?, ?)')
+        .run(search_id, album_id, position);
+}
+
+function updateSpotifyData(spotify_id, spotify_data, album_id) {
+    db.prepare('UPDATE albums SET spotify_id = ?, spotify_data = ? WHERE id = ?')
+        .run(spotify_id, JSON.stringify(spotify_data), album_id);
 }
 
 
-export { saveAlbums, getAlbums };
+function getAlbumsFromSearchResults(searchId) {
+    const rows = db.prepare(`
+        SELECT albums.* 
+        FROM search_results 
+        JOIN albums ON albums.id = search_results.album_id
+        WHERE search_results.search_id = ?
+        ORDER BY search_results.position ASC
+        `).all(searchId);
+
+    return rows.map((row) => ({
+        ...row,
+        spotify_data: row.spotify_data ? JSON.parse(row.spotify_data) : null
+    }));
+}
+
+function getCurrentSessionId(tags) {
+    const normalizedTags = JSON.stringify([...tags].sort());
+
+    const search = db.prepare(`
+        SELECT id 
+        FROM searches
+        WHERE tags = ? 
+        ORDER BY id DESC LIMIT 1
+    `).get(normalizedTags);
+
+    if (!search) { return [] };
+
+    const rowResult = db.prepare(`
+        SELECT albums   .spotify_id
+        FROM search_results
+        JOIN albums ON albums.id = search_results.album_id
+        WHERE search_results.search_id = ? 
+        AND albums.spotify_id IS NOT NULL
+        ORDER BY search_results.position ASC    
+    `)
+        .all(search.id);
+
+    return rowResult.map((row) => row.spotify_id);
+}
+
+
+export {
+    saveUserSearch,
+    saveAlbums,
+    insertSearchResults,
+    updateSpotifyData,
+    getAlbumsFromSearchResults,
+    getCurrentSessionId
+
+};
 
 
