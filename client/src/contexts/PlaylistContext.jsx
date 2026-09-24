@@ -1,5 +1,4 @@
 import { createContext, useContext, useState } from "react";
-import useWebPlayer from "../hooks/useWebPlayer.jsx";
 
 const PlaylistContext = createContext(null);
 

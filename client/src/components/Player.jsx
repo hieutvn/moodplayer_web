@@ -10,133 +10,50 @@ import AddSongIcon from "../assets/icons/add_song_btn.svg";
 import AddAlbumIcon from "../assets/icons/add_album_btn.svg";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { usePlayerContext } from "../contexts.js";
 import { useWebPlayerContext } from '../contexts/WebplayerContext.jsx';
 import { usePlaylistContext } from '../contexts/PlaylistContext.jsx';
+import usePlaylistControls from '../hooks/usePlaylistControls.jsx';
 import Settings from "./Settings.jsx";
 
 export default function Player() {
   const {
-    currentSong,
-    webplayer,
-    isPlaying,
-    accessToken,
     deviceId,
+    currentSong,
+    currentAlbum,
+    isPlaying,
+    isReady,
+    resume,
+    pause,
+    togglePlay,
+    seek,
+    nextTrack,
+    prevTrack,
+    setVolume,
+    getCurrentPlaybackState,
+    playAlbum
   } = useWebPlayerContext();
 
+
   const { currentPlaylist } = usePlaylistContext();
+  const {
+    currentIndex,
+    currentPlaylingAlbum,
+    playCurrentAlbum,
+    playPrevAlbum,
+    playNextAlbum,
+  } = usePlaylistControls(currentPlaylist, playAlbum);
 
-  useEffect(() => {
-    console.log("CURRENT RECEIVED", currentPlaylist)
-  }, [currentPlaylist])
-
-  const sessionPlaylist = [];
-
-  const [volume, setVolume] = useState(50);
-  const [playlist, setPlaylist] = useState([]);
+  const [volume, setVolumeVal] = useState(50);
   const [onQueuePlaylist, setOnQueuePlaylist] = useState([]);
   const [onPlayingAlbum, setOnPlayingAlbum] = useState([]);
-  const [currentAlbumIdx, setCurrentAlbumIdx] = useState(0);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const lastSeekRef = useRef(0);
-  const [playlistIndex, setPlaylistIndex] = useState(0);
-
-  const testing = async () => {
-
-    try {
-      const request = await fetch(`http://127.0.0.1:3000/api/recommend/createRecommendation`,
-        {
-          method: 'GET',
-          credentials: 'include',
-        }
-      );
-      if (!request.ok) { throw new Error('Failed to send moods', request.status) }
-
-      const response = await request.json();
-      console.log("playlist", response)
-      return response;
-
-    }
-    catch (error) {
-      console.error('Error sending moods', error);
-    }
-
-  }
-
-  const playNextAlbum = async () => {
-
-    await fetch(`http://127.0.0.1:3000/api/playlist/play-next`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accessToken }),
-    });
-  }
-
-  const playPrevAlbum = async () => {
-
-    await fetch(`http://127.0.0.1:3000/api/playlist/play-prev`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accessToken }),
-    });
-  }
-
-  const playAlbum = async (albumId) => {
-    if (!albumId || !deviceId) return;
-
-    try {
-      await fetch(
-        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            context_uri: `spotify:track:${albumId}`,
-          }),
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const playSong = useMemo(() => {
-    // playAlbum(playlistRef.current[playlistIndex]);
-    console.log("playing..");
-  }, [playlistIndex]);
-
-  const prevAlbum = () => {
-    if (currentAlbumIdx > 0) {
-      const newIdx = currentAlbumIdx - 1;
-      setCurrentAlbumIdx(newIdx);
-      playAlbum(sessionPlaylist[newIdx]);
-    }
-  };
-
-  const nextAlbum = () => {
-    if (currentAlbumIdx < sessionPlaylist.length - 1) {
-      const newIdx = currentAlbumIdx + 1;
-      setCurrentAlbumIdx(newIdx);
-      playAlbum(sessionPlaylist[newIdx]);
-    }
-  };
-
-  useEffect(() => {
-    if (sessionPlaylist && sessionPlaylist.length > 0) {
-      setCurrentAlbumIdx(0);
-      playAlbum(sessionPlaylist[0]);
-    }
-    console.log("sessionPlaylist changed:", sessionPlaylist);
-  }, [sessionPlaylist]);
 
   const onChangeVolume = (event) => {
     const volumePercentage = Number(event.target.value);
     setVolume(volumePercentage);
-    webplayer.setVolume(volumePercentage / 100);
+    setVolume(volumePercentage / 100);
   };
 
   const formatTime = (ms) => {
@@ -158,16 +75,14 @@ export default function Player() {
     const ms = Number(event.target.value);
     setPosition(ms);
     lastSeekRef.current = Date.now();
-    webplayer.seek(ms);
+    seek(ms);
   };
 
   useEffect(() => {
-    if (!webplayer) return;
-
     const updateProgress = () => {
       if (Date.now() - lastSeekRef.current < 1500) return;
 
-      webplayer.getCurrentState().then((state) => {
+      getCurrentPlaybackState().then((state) => {
         if (!state) return;
         setPosition(state.position);
         setDuration(state.duration);
@@ -179,9 +94,9 @@ export default function Player() {
     }, 150);
 
     return () => clearInterval(interval);
-  }, [webplayer, isPlaying]);
+  }, [isPlaying]);
 
-  return !webplayer ? (
+  return !isReady ? (
     <p>Player loading...</p>
   ) : (
     <div className={styles.player}>
@@ -219,7 +134,7 @@ export default function Player() {
               <div className={styles.player_controls}>
                 <div className={styles.tooltip}>
                   <span className={styles.tooltip_text}>Previous Album</span>
-                  <button className={styles.next_album_btn} onClick={playPrevAlbum}>
+                  <button className={styles.next_album_btn}>
                     <NextAlbumIcon
                       className={styles.icon}
                       style={{ transform: "rotate(180deg)" }}
@@ -232,7 +147,7 @@ export default function Player() {
                   <button
                     className={styles.prev_song_btn}
                     onClick={() => {
-                      webplayer.previousTrack();
+                      prevTrack();
                     }}
                   >
                     <NextSongIcon
@@ -249,7 +164,7 @@ export default function Player() {
                   <button
                     className={styles.play_stop_btn}
                     onClick={() => {
-                      webplayer.togglePlay();
+                      togglePlay();
                     }}
                   >
                     {isPlaying ? (
@@ -271,8 +186,7 @@ export default function Player() {
                   <button
                     className={styles.next_song_btn}
                     onClick={() => {
-                      setPlaylistIndex((prev) => prev++);
-                      webplayer.nextTrack();
+                      nextTrack();
                     }}
                   >
                     <NextSongIcon className={styles.icon} />
@@ -281,7 +195,7 @@ export default function Player() {
 
                 <div className={styles.tooltip}>
                   <span className={styles.tooltip_text}>Next Album</span>
-                  <button className={styles.next_album_btn} onClick={playNextAlbum}>
+                  <button className={styles.next_album_btn} onClick={playCurrentAlbum}>
                     <NextAlbumIcon className={styles.icon} />
                   </button>
                 </div>
@@ -311,7 +225,7 @@ export default function Player() {
                   <span className={styles.tooltip_text}>Add Album</span>
                   <button
                     className={styles.add_album_btn}
-                    onClick={() => fetchCurrentPlaylist()}
+
                   >
                     <AddAlbumIcon className={styles.icon} />
                   </button>

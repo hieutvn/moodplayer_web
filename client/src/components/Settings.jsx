@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import styles from "../assets/styles/settings.module.css";
-import { usePlayerContext } from "../contexts.js";
 
 export default function Settings(accessToken) {
 
@@ -13,7 +12,7 @@ export default function Settings(accessToken) {
 
   const menuRef = useRef(null);
 
-    const getProfile = async () => {
+  const getProfile = async () => {
     try {
       const request = await fetch("http://127.0.0.1:3000/api/user/getuser", {
         method: "GET",
@@ -35,9 +34,9 @@ export default function Settings(accessToken) {
     }
   };
 
-    function toggleMenu() {
-      setToggle((prev) => !prev);
-    }
+  function toggleMenu() {
+    setToggle((prev) => !prev);
+  }
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -55,13 +54,13 @@ export default function Settings(accessToken) {
 
   useEffect(() => {
     if (!accessToken) { return; }
-      console.log("accessToken testing", accessToken);
+    console.log("accessToken testing", accessToken);
     if (accessToken) {
       getProfile(accessToken);
     }
-    }, [accessToken]);
+  }, [accessToken]);
 
-  
+
 
   return (
     <div className={styles.settings} ref={menuRef}>

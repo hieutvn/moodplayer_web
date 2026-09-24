@@ -81,18 +81,6 @@ function saveAlbums(artist, album, external_ids = {}) {
         `)
         .run(artist, album, JSON.stringify(external_ids));
 
-
-    /*     const insertMany = db.transaction((albums) => {
-    
-            for (const [key, value] of albums) {
-                insert.run({
-                    album_name: value.album,
-                    artist: key,
-                    external_ids: JSON.stringify(value.external_ids ?? {})
-                })
-            }
-        });
-        insertMany(albums); */
     return db
         .prepare('SELECT * FROM albums WHERE album_name = ? AND artist = ?')
         .get(album, artist);

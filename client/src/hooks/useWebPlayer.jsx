@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 export default function useWebPlayer(accessToken) {
 
   const [webplayer, setWebPlayer] = useState(null);
+  const webPlayerRef = useRef(null);
   const [expiry, setExpiry] = useState(null);
 
   const [deviceId, setDeviceId] = useState(null);
@@ -56,7 +57,9 @@ export default function useWebPlayer(accessToken) {
       webplayer.addListener("ready", async ({ device_id }) => {
         console.log("Webplayer initialized. ID: ", device_id);
 
-        setWebPlayer(webplayer);
+        //setWebPlayer(webplayer);
+        webPlayerRef.current = webplayer;
+
         await fetch("https://api.spotify.com/v1/me/player", {
           method: "PUT",
           body: JSON.stringify({
@@ -74,7 +77,7 @@ export default function useWebPlayer(accessToken) {
 
           setDeviceId(device_id);
 
-          await fetch(`http://127.0.0.1:3000/api/playlist/123/register-player`, {
+          await fetch(`http://127.0.0.1:3000/api/playlist/register-player`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -87,7 +90,6 @@ export default function useWebPlayer(accessToken) {
         }
 
       });
-
 
       webplayer.addListener("player_state_changed", (state) => {
         if (!state) return;
@@ -133,13 +135,56 @@ export default function useWebPlayer(accessToken) {
   }, [accessToken]);
 
 
+
+  const resume = () => webPlayerRef.current.resume();
+  const pause = () => webPlayerRef.current.pause();
+  const togglePlay = () => webPlayerRef.current.togglePlay();
+  const seek = (ms) => webPlayerRef.current.seek(ms);
+  const nextTrack = () => webPlayerRef.current.nextTrack();
+  const prevTrack = () => webPlayerRef.current.previousTrack();
+  const setVolume = (vol) => webPlayerRef.current.setVolume(vol);
+  const getCurrentPlaybackState = async () => webPlayerRef.current.getCurrentState();
+  const playAlbum = async (albumId) => {
+
+    if (!albumId || !deviceId) return;
+    console.log("playling on sdk")
+
+    try {
+      await fetch(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            context_uri: `spotify:track:${albumId}`,
+          }),
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
   return {
 
-    webplayer,
     deviceId,
-    isReady,
     currentSong,
     currentAlbum,
-    isPlaying
+    isPlaying,
+    isReady,
+    resume,
+    pause,
+    togglePlay,
+    seek,
+    nextTrack,
+    prevTrack,
+    setVolume,
+    getCurrentPlaybackState,
+    playAlbum
+
   };
 }

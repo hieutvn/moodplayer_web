@@ -3,7 +3,6 @@ import styles from "../assets/styles/userinput.module.css";
 import genres from "../assets/genres.json";
 import SearchIcon from "../assets/icons/search_btn.svg";
 import HistoryIcon from "../assets/icons/history.svg";
-import { usePlayerContext } from "../contexts.js";
 import { useMoodAutocomplete } from "../hooks/useMoodAutocomplete.jsx";
 import { submitMoods, requestRecommendations } from "../hooks/useMoodSubmit.js";
 import { usePlaylistContext } from '../contexts/PlaylistContext.jsx';

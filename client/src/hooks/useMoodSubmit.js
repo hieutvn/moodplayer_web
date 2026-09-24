@@ -46,34 +46,10 @@ export async function requestRecommendations(selectedMoods, accessToken) {
     if (!request.ok) { throw new Error('Failed to send moods', request.status) }
 
     const response = await request.json();
-    console.log("current playlist", response)
-    return response;
+    console.log("current playlist", response.playlist)
+    return response.playlist;
 
   } catch (error) {
     console.error('Error sending moods', error);
   }
-}
-
-export async function test() {
-
-  console.log("sending")
-  try {
-    const request = await fetch("http://127.0.0.1:3000/api/playlist/play-prev",
-      {
-        method: 'GET',
-        credentials: 'include',
-
-      }
-    );
-
-    if (!request.ok) { throw new Error('Failed to send moods', request.status) }
-
-    const response = await request.json();
-
-    return response;
-  }
-  catch (error) {
-    console.error(error);
-  }
-
 }

@@ -10,7 +10,6 @@ import useAuth from "../hooks/useAuth.jsx";
 import useWebPlayer from "../hooks/useWebPlayer.jsx";
 
 
-import { PlayerContext, PlaylistContext } from "../contexts.js";
 import { WebPlayerProvider } from "../contexts/WebplayerContext.jsx";
 import { AccessTokenProvider } from "../contexts/AccessTokenContext.jsx";
 
