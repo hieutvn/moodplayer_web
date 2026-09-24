@@ -6,6 +6,9 @@ export default function usePlaylistControls(playlist = [], playAlbum) {
 
     useEffect(() => {
         playlistRef.current = playlist;
+
+        if (playlistRef.current.length > 0) {
+        }
     }, [playlist]);
 
     const playCurrentAlbum = useCallback(() => {

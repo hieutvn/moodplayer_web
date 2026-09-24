@@ -159,7 +159,9 @@ export default function useWebPlayer(accessToken) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            context_uri: `spotify:track:${albumId}`,
+            context_uri: `spotify:album:${albumId}`,
+            offset: { position: 0 },
+
           }),
         },
       );
