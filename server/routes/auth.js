@@ -19,12 +19,6 @@ const corsOptions = {
 router.use(cors(corsOptions));
 //router.use(cookieParser);
 
-router.get("/", (req, res) => {
-
-    console.log("Route at /");
-});
-
-
 
 
 router.get('/login', (req, res) => {

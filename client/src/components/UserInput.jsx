@@ -6,10 +6,11 @@ import HistoryIcon from "../assets/icons/history.svg";
 import { useMoodAutocomplete } from "../hooks/useMoodAutocomplete.jsx";
 import { submitMoods, requestRecommendations } from "../hooks/useMoodSubmit.js";
 import { usePlaylistContext } from '../contexts/PlaylistContext.jsx';
+import { useLoadingContext } from "../contexts/LoadingContext.jsx";
 
 export default function UserInput(accessToken) {
   const { currentPlaylist, setCurrentPlaylist } = usePlaylistContext();
-
+  const { status } = useLoadingContext();
 
   const [moods, setMoods] = useState([]);
   const [selectedMoods, setSelectedMoods] = useState([]);
@@ -119,6 +120,7 @@ export default function UserInput(accessToken) {
                   : `${styles.search_btn} ${styles.searchable}`
               }
               onClick={() => getPlaylistByTags()}
+              disabled={status === 'loading'}
             >
               Search
             </button>
@@ -209,7 +211,7 @@ export default function UserInput(accessToken) {
           </div>
         </div>
 
-        <p style={{ color: "white" }}>Search</p>
+        <p style={{ color: "white" }}>Search results</p>
 
         {showDropdown && activeButton === "search" && (
           <div className={styles.dropdown}>

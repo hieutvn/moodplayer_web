@@ -135,7 +135,6 @@ export default function useWebPlayer(accessToken) {
   }, [accessToken]);
 
 
-
   const resume = () => webPlayerRef.current.resume();
   const pause = () => webPlayerRef.current.pause();
   const togglePlay = () => webPlayerRef.current.togglePlay();

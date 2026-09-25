@@ -29,7 +29,7 @@ function getCurrentPlaylist(req) {
 router.post('/createRecommendation', async (req, res) => {
 
     console.log("at recommend")
-    const accessToken = req.cookies.access_token.access_token || null;
+    const accessToken = req.headers.access_token || null;
     let rawKeywords = JSON.parse(req.headers.keywords).sort() || '[]';
     let currentPlaylist = [];
 

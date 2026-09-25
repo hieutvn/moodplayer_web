@@ -6,7 +6,7 @@ import { useWebPlayerContext } from '../contexts/WebplayerContext.jsx';
 
 export default function AlbumSwiper() {
     const { currentAlbum } = useWebPlayerContext();
-
+    
     const [currentImg, setCurrentImg] = useState('');
 
     function handleScroll(e) {

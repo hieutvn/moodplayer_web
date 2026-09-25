@@ -8,7 +8,7 @@ export default function usePlaylistControls(playlist = [], playAlbum) {
         playlistRef.current = playlist;
 
         if (playlistRef.current.length > 0) {
-        }
+            }
     }, [playlist]);
 
     const playCurrentAlbum = useCallback(() => {

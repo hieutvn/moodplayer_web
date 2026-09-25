@@ -96,6 +96,12 @@ export default function Player() {
     return () => clearInterval(interval);
   }, [isPlaying]);
 
+  useEffect(() => {
+    console.log("playing album rn")
+    if (!isReady || !currentPlaylist) return;
+    playCurrentAlbum();
+  }, [currentPlaylist, isReady])
+
   return !isReady ? (
     <p>Player loading...</p>
   ) : (
@@ -134,7 +140,8 @@ export default function Player() {
               <div className={styles.player_controls}>
                 <div className={styles.tooltip}>
                   <span className={styles.tooltip_text}>Previous Album</span>
-                  <button className={styles.next_album_btn}>
+                  <button className={styles.next_album_btn}
+                    onClick={playPrevAlbum}>
                     <NextAlbumIcon
                       className={styles.icon}
                       style={{ transform: "rotate(180deg)" }}
@@ -195,7 +202,7 @@ export default function Player() {
 
                 <div className={styles.tooltip}>
                   <span className={styles.tooltip_text}>Next Album</span>
-                  <button className={styles.next_album_btn} onClick={playCurrentAlbum}>
+                  <button className={styles.next_album_btn} onClick={playNextAlbum}>
                     <NextAlbumIcon className={styles.icon} />
                   </button>
                 </div>
